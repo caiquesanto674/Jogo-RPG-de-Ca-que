@@ -1,0 +1,1 @@
+[2025-12-05 17:03:52] [ERRO DE INTEGRAÇÃO Causal]: Placeholder '[# SEÇÃO PARA: ECONOMIA E RECURSOS #]' não encontrado no código principal.
