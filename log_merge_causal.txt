@@ -1,0 +1,2 @@
+[2025-12-05 16:41:49] [SUCESSO DE MERGE Causal]: Módulo 'Log Sucesso' integrado com sucesso na seção 'TECNOLOGIA E HABILIDADES'.
+[2025-12-05 16:41:49] [ERRO DE CONFLITO Causal]: Módulo 'Log Falha' falhou no merge. Conflitos detectados em: regra_base_global. O código não foi alterado.
