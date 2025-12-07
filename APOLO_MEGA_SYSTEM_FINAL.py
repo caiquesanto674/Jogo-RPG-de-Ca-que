@@ -14,11 +14,6 @@ CLASSES = ['Guerreiro', 'Mago', 'Comandante', 'Engenheiro', 'Assassino', 'Cléri
 RACAS = ['Humano', 'Elfo', 'Orc', 'Demônio', 'Androide']
 MAPA_TAMANHO = (30, 30)
 
-def gerar_codigo_confirmacao(acao: str, cargo: str, nivel_tec: int) -> str:
-    """Frases de Comportamento: Gera um hash de confirmação para comandos críticos."""
-    raw = f"{acao}-{cargo}-{nivel_tec}:{datetime.now().microsecond}"
-    return hashlib.sha256(raw.encode()).hexdigest()[:8].upper()
-
 # ===================== AI CARDINAL — A DEUSA QUE NUNCA DEIXA VOCÊ PERDER =====================
 class AICardinal:
     """
@@ -95,17 +90,19 @@ class Personagem(Entidade):
         self.humor = "neutro"
 
     def agir(self, acao: str, alvo: Optional[Entidade] = None):
+        """Executa uma ação, como atacar, e imprime o resultado na tela."""
         if acao == 'atacar' and alvo:
             dano = random.randint(15, 30)
             alvo.hp = max(0, alvo.hp - dano)
-            return f"[{self.nome}] ataca {alvo.nome} e causa {dano} de dano! HP restante: {alvo.hp}"
-        return f"{self.nome} executou ação: {acao}"
+            print(f"⚔️  [{self.nome}] ataca {alvo.nome} e causa {dano} de dano! HP restante: {alvo.hp}")
+        else:
+            print(f"[{self.nome}] executou ação: {acao}")
 
 class MonarcaAbsoluto(Personagem):
     """Protagonista - Monarca Caíque (OWNER), com atributos de APOLO e Agony Overflow."""
     def __init__(self, nome: str, base: 'BaseMilitar'):
         super().__init__(nome, cargo="OWNER", raca="Humano", classe="Comandante", base=base)
-        self.moral = 100.0
+        self.moral = 100.0  # O Monarca começa com moral máxima
         self.indice_dimensional = 3.0
         self.harem = {"Luna": 100, "Calia Cardinal": 100, "Maria": 95}
         self.hp = 9999
