@@ -10,19 +10,9 @@ __pycache__/
 .Python
 env/
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
+/*.egg-info/
 .installed.cfg
-*.egg
 
 # Installer logs
 pip-log.txt
@@ -35,19 +25,14 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
-nosetests.xml
-coverage.xml
 *,cover
 .hypothesis/
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
-
-# VS Code / PyCharm / IDE configs
+# IDEs
 .vscode/
 .idea/
 
-# Logs, temp files
+# Logs, temp
 *.log
 *.tmp
 *.swp

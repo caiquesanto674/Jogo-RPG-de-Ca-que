@@ -1,3 +1,3 @@
 # LORE / UNIVERSO APOLO
 
-História, ambientação, personagens centrais, cronograma narrativo — preencha conforme o enredo.
+História e narrativa do universo. Preencha com a lore completa.
