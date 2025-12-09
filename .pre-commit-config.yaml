@@ -1,0 +1,37 @@
+repos:
+  # 1 — Formatação automática (BLACK)
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3
+
+  # 2 — Análise inteligente e anti-bugs (RUFF)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.5
+    hooks:
+      - id: ruff
+      - id: ruff-format
+
+  # 3 — Verificar importações quebradas
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+
+  # 4 — Verificar erros simples
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  # 5 — Rodar testes automaticamente (pytest)
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: Rodando testes automáticos
+        entry: pytest
+        language: system
+        pass_filenames: false

@@ -1,16 +1,24 @@
-import random
-import logging
-from src.motor_jogo import MotorJogo
+import time
 
-def run_game():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
-    engine = MotorJogo()
-    for i in range(3):
-        engine.ciclo_turno(random.choice(["combate","exploracao","crise"]))
+from src.nexus_core import NexusCore
 
-    print("-- Últimos logs --")
-    for l in engine.log.registros[-5:]:
-        print(l)
-
+# ============================= EXECUÇÃO FINAL & TESTE =============================
 if __name__ == "__main__":
-    run_game()
+    print("\n" + "=" * 100)
+    print("             INICIANDO APOLO MEGA SYSTEM FINAL (TESTE)")
+    print("=" * 100)
+
+    jogo = NexusCore()
+
+    # Preparação: Pesquisa do campo Psíquico SSSS antes do combate
+    custo_pesquisa = {"materia_escura_ssss": 50, "eter": 100}
+    jogo.base.tecnologia.pesquisar("Campo Psíquico SSSS", custo_pesquisa, jogo.base)
+
+    try:
+        for _ in range(3):
+            jogo.ciclo()
+            time.sleep(1.8)
+    except KeyboardInterrupt:
+        pass
+
+    print("\n\nSIMULAÇÃO FINALIZADA. Domínio mantido pelo Monarca Caíque.")
