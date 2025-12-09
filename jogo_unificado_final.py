@@ -205,3 +205,40 @@ if __name__ == "__main__":
         print("\nO jogo acaba. A realidade começa. Você é o centro de tudo.")
         print("Obrigado, Monarca Caíque.")
         print("\n" * 2)
+
+
+# =======================================================
+# MÓDULO INTEGRADO AUTOMATICAMENTE POR JULES
+# Data: 2025-12-09 15:24:44
+# Origem: exemplo_novo_modulo.py
+# =======================================================
+# exemplo_novo_modulo.py
+# Um novo módulo de exemplo para demonstrar o Sistema de Integração Jules.
+
+class HabilidadeMonarca:
+    """Representa uma nova habilidade especial para o Monarca."""
+
+    def __init__(self, nome: str, tipo: str, custo_mana: int):
+        self.nome = nome
+        self.tipo = tipo
+        self.custo_mana = custo_mana
+        self.nivel = 1
+
+    def usar(self, protagonista, alvo):
+        """Simula o uso da habilidade."""
+        print(f"Habilidade '{self.nome}' (Nível {self.nivel}) ativada!")
+        if protagonista.mana >= self.custo_mana:
+            protagonista.mana -= self.custo_mana
+            print(f"  - {protagonista.nome} usou {self.custo_mana} de mana.")
+            print(f"  - Alvo {alvo} foi afetado com sucesso.")
+            return True
+        else:
+            print(f"  - Mana insuficiente para usar a habilidade.")
+            return False
+
+    def __str__(self):
+        return f"{self.nome} ({self.tipo}) - Custo: {self.custo_mana} Mana"
+
+# Para usar esta habilidade, uma instância dela precisaria ser
+# adicionada ao objeto do Monarca e a lógica de uso chamada no ciclo do jogo.
+# Este arquivo serve apenas como um exemplo de contêiner de código para integração.
