@@ -97,10 +97,10 @@ def integrar_novo_modulo(arquivo_base: str, arquivo_novo: str, arquivo_saida: st
         logging.info("É recomendado revisar o arquivo final.")
 
 if __name__ == '__main__':
-    logging.info("Sistema de Integração Jules - Pronto para uso.")
-    # Exemplo de como usar (atualmente comentado para evitar execução acidental)
-    # arquivo_principal = 'jogo_unificado_final.py'
-    # novo_modulo = 'exemplo_novo_modulo.py' # Substitua pelo nome do seu arquivo
-    # arquivo_final = 'jogo_unificado_final.py' # Pode ser o mesmo para sobrescrever ou um novo
+    logging.info("Sistema de Integração Jules - Analisando 'modulo_mundo.py'")
 
-    # integrar_novo_modulo(arquivo_principal, novo_modulo, arquivo_final)
+    arquivo_principal = 'jogo_unificado_final.py'
+    novo_modulo = 'modulo_mundo.py'
+    arquivo_final = 'saida_temporaria.txt'
+
+    integrar_novo_modulo(arquivo_principal, novo_modulo, arquivo_final)
