@@ -5,12 +5,14 @@ FRASES_CONFIRMACAO = {
     "MILITAR_FALHA": "Falha operacional. Perdas registradas.",
     "TECNOLOGIA_SUCESSO": "Upgrade tecnológico ativado.",
     "CORRECAO_SUCESSO": "AI: Bug crítico resolvido.",
-    "CORRECAO_FALHA": "Auto-correção falhou. Recurso insuficiente."
+    "CORRECAO_FALHA": "Auto-correção falhou. Recurso insuficiente.",
 }
+
 
 def frase_confirmacao(codigo, sucesso=True):
     key = f"{codigo}_{'SUCESSO' if sucesso else 'FALHA'}"
     return FRASES_CONFIRMACAO.get(key, "Ação processada.")
+
 
 class EstadoComportamento(Enum):
     OFENSIVO = "OFENSIVO"
