@@ -1,7 +1,7 @@
-# Arquivo: principal.py
+# main.py
 
-from fonte.nexus_core import iniciar_combate_simples
+from apolo_engine.systems.motor import iniciar_jogo
 
 if __name__ == "__main__":
-    print("Iniciando o Jogo RPG Multiverso...")
-    iniciar_combate_simples()
+    print("Iniciando Apolo Engine...")
+    iniciar_jogo()
