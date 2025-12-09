@@ -50,12 +50,24 @@ class Inimigo(Personagem):
         self.pos = pos
 
     def usar_poder(self, alvo: MonarcaAbsoluto):
-        """Ataque psicológico com mitigação pela base (defesa_psiquica)."""
-        if self.poder_psicologico and alvo.base:
+        """Calcula o dano de um ataque psicológico."""
+        if self.poder_psicologico:
             dano_base = self.nivel_forca * 0.75
-            defesa_pct = getattr(alvo.base, "defesa_psiquica", 0.0)
-            dano_final = dano_base * (1.0 - defesa_pct)
-            alvo.moral = max(0.0, alvo.moral - dano_final)
-            alvo.humor = "dominado_psicologicamente"
-            return {'tipo': 'PSICOLOGICO', 'valor': dano_final}
+            return {'tipo': 'PSICOLOGICO', 'valor': dano_base}
         return {'tipo': 'IDLE', 'valor': 0}
+
+class AI_NPC_Suporte(Personagem):
+    def __init__(self, nome, base):
+        super().__init__(nome, cargo="Suporte", classe="Clérigo")
+        self.base = base
+
+    def tomar_decisao_suporte(self, monarca, inimigo):
+        if monarca.moral < 40 and monarca.base and monarca.base.defesa_psiquica < 0.5:
+            monarca.base.aplicar_upgrade_psiquico()
+            return 'ATIVAR_DEFESA_PSÍQUICA'
+        if monarca.moral < 50:
+            monarca.moral = min(100, monarca.moral +  random.randint(10,20))
+            return 'RESTAURAR_MORAL'
+        if inimigo and inimigo.hp>0:
+            return 'ATACAR_INIMIGO'
+        return 'IDLE'

@@ -1,11 +1,11 @@
 # main.py (na raiz do apolo_engine)
 import time
-from entities.entidade import MonarcaAbsoluto, Inimigo
+from entities.entidade import MonarcaAbsoluto, Inimigo, AI_NPC_Suporte
 from entities.veiculo import VeiculoDeCombate
 from world.worldmap import WorldMap
 from systems.economy import Economia
 from systems.base import BaseMilitar
-from ai.cardinal import AICardinal, AI_NPC_Suporte
+from ai.cardinal import AICardinal
 from combat.combat import calcular_efeito_psiquico
 
 def run_demo(turns: int = 3):
@@ -19,6 +19,10 @@ def run_demo(turns: int = 3):
     aliado = AI_NPC_Suporte("Calia Cardinal", base)
     world = WorldMap(30,30)
 
+    # Pesquisa e ativa o escudo
+    base.tecnologia.pesquisar("Escudo Psiônico SSSS", base)
+    base.ativar_escudo_psionico()
+
     for turno in range(1, turns+1):
         print(f"\n=== CICLO {turno} — DOMÍNIO APOLO ===")
         base.ciclo_base()
@@ -27,11 +31,24 @@ def run_demo(turns: int = 3):
         # Ataque psicológico
         resultado = inimigo.usar_poder(monarca)
         if resultado['tipo'] == 'PSICOLOGICO':
-            dano = calcular_efeito_psiquico(resultado['valor'], base.defesa_psiquica)
-            print(f"[ATAQUE PSÍQUICO] Zarkon aplica {resultado['valor']:.2f} -> mitigado para {dano:.2f}. Moral antiga -> {monarca.moral:.2f}")
+            dano_base = resultado['valor']
+            if base.escudo_psionico_ativo and base.escudo_psionico_carga > 0:
+                print("🛡️ [ESCUDO PSÍQUICO] Ataque de Zarkon bloqueado! Carga do escudo drenada.")
+                base.escudo_psionico_carga -= 34
+                if base.escudo_psionico_carga <= 0:
+                    base.escudo_psionico_ativo = False
+                    print("⚠️ Escudo Psiônico SSSS desativado! Carga esgotada.")
+            else:
+                dano_final = calcular_efeito_psiquico(dano_base, base.defesa_psiquica)
+                monarca.moral = max(0.0, monarca.moral - dano_final)
+                monarca.humor = "dominado_psicologicamente"
+                print(f"[ATAQUE PSÍQUICO] Zarkon aplica {dano_base:.2f} -> mitigado para {dano_final:.2f}. Moral do Monarca: {monarca.moral:.2f}")
 
         # Ações de suporte
-        aliado.tomar_decisao_suporte(monarca, inimigo)
+        decisao_aliado = aliado.tomar_decisao_suporte(monarca, inimigo)
+        if decisao_aliado == 'ATACAR_INIMIGO':
+            print(aliado.agir('atacar', inimigo))
+
         if monarca.moral < 20:
             activated = monarca.ativar_volicao()
             if activated:
