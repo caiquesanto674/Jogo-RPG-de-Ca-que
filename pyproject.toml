@@ -1,0 +1,15 @@
+# Arquivo: pyproject.toml
+
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I"] # Adicionado "I" para conflito com isort
+ignore = ["E501"]
+
+[tool.isort]
+line_length = 100
+profile = "black"

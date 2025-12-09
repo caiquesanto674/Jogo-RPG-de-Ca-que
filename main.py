@@ -1,16 +1,7 @@
-import random
-import logging
-from src.motor_jogo import MotorJogo
+# main.py
 
-def run_game():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
-    engine = MotorJogo()
-    for i in range(3):
-        engine.ciclo_turno(random.choice(["combate","exploracao","crise"]))
-
-    print("-- Últimos logs --")
-    for l in engine.log.registros[-5:]:
-        print(l)
+from apolo_engine.systems.motor import iniciar_jogo
 
 if __name__ == "__main__":
-    run_game()
+    print("Iniciando Apolo Engine...")
+    iniciar_jogo()

@@ -1,0 +1,39 @@
+# Arquivo: .pre-commit-config.yaml
+
+repos:
+  # 1 — Formatação automática (BLACK) - Padroniza o código
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3
+
+  # 2 — Análise inteligente e anti-bugs (RUFF) - Encontra erros e incoerências
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.5
+    hooks:
+      - id: ruff
+      - id: ruff-format
+
+  # 3 — Organizar Importações (ISORT) - Mantém os "imports" limpos
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+
+  # 4 — Verificadores de Limpeza (PRE-COMMIT-HOOKS)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer # Garante linha nova no final do arquivo
+      - id: trailing-whitespace # Remove espaços em branco extras
+
+  # 5 — Rodar testes automaticamente (PYTEST) - O mais crucial
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: Rodando testes automáticos (Pytest)
+        entry: pytest
+        language: system
+        pass_filenames: false
