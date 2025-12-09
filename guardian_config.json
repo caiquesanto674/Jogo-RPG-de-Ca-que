@@ -1,0 +1,24 @@
+{
+  "project_name": "Monarca_Omega_Engine",
+  "version": "1.0.0",
+  "architecture": {
+    "source_root": "src",
+    "tests_root": "tests",
+    "core_components": "src/core",
+    "game_systems": "src/systems",
+    "event_handlers": "src/events",
+    "utils": "src/utils"
+  },
+  "keywords_mapping": {
+    "MonarcaAbsoluto": "core_components",
+    "AICardinal": "core_components",
+    "UnidadeMilitar": "game_systems",
+    "Tecnologia": "game_systems",
+    "EconomiaUnificada": "game_systems",
+    "AI_NPC": "game_systems",
+    "EventoQuiz": "event_handlers",
+    "MundoSimulado": "event_handlers",
+    "LogSistema": "utils",
+    "ProtocoloConfirmacao": "utils"
+  }
+}

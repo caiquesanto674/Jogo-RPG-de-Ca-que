@@ -1,53 +1,59 @@
-# Jogo do Monarca Caíque Ω
+# Monarca Omega Engine
 
-Este repositório contém a versão final e unificada do jogo do Monarca Caíque. O projeto é um script único, `jogo_unificado_final.py`, que combina elementos de simulação econômica, estratégia militar, avanço tecnológico e sistemas de IA.
+Este repositório contém a arquitetura modular do **Monarca Omega Engine**, um jogo de simulação e estratégia. O projeto foi refatorado de um script único para uma estrutura de pastas organizada, protegida pelo **Sistema Guardião**.
+
+## Arquitetura do Projeto
+
+O código-fonte está organizado da seguinte forma:
+
+-   `main.py`: O ponto de entrada principal para executar o jogo.
+-   `src/`: Contém todo o código-fonte do jogo.
+    -   `core/`: As classes centrais do jogo, como o `Monarca` e a `AICardinal`.
+    -   `systems/`: Os principais sistemas de mecânicas, como `Economia`, `Tecnologia` e `Unidades`.
+    -   `events/`: Módulos que gerenciam eventos de jogo, como o `Quiz` e a `MundoSimulado`.
+    -   `utils/`: Ferramentas compartilhadas, como o sistema de `Log`.
+-   `tests/`: Contém os testes para o projeto, incluindo os testes do Guardião.
+-   `guardian.py`: O script do Sistema Guardião.
+-   `guardian_config.json`: O mapa da arquitetura usado pelo Guardião.
 
 ## Como Executar o Jogo
 
-Para jogar, basta executar o script principal a partir do seu terminal:
+Para iniciar o jogo, execute o `main.py` a partir da raiz do projeto:
 
 ```bash
-python jogo_unificado_final.py
+python main.py
 ```
 
-O jogo rodará em um loop contínuo. Para encerrar, pressione `Ctrl+C`.
+## Sistema Guardião
 
----
+O **Sistema Guardião** (`guardian.py`) é uma ferramenta que protege a arquitetura do projeto. Ele ajuda a garantir que novos arquivos de código sejam colocados no lugar certo e não criem conflitos.
 
-## Sistema de Integração Jules
+### Como Usar o Guardião para Verificar um Novo Arquivo
 
-Para ajudar a adicionar novos códigos ao jogo principal sem criar conflitos, foi desenvolvido o **Sistema de Integração Jules** (`integrador_jules.py`). Esta ferramenta funde um novo arquivo de código ao script principal de forma segura.
+1.  **Crie seu Novo Módulo**: Escreva seu novo código em um arquivo `.py` (por exemplo, `meu_novo_sistema.py`).
 
-### Como Usar o Integrador
-
-1.  **Crie seu Novo Módulo**: Escreva seu novo código (contendo novas classes ou funções) e salve-o em um arquivo separado (por exemplo, `meu_novo_modulo.py`).
-
-2.  **Prepare o Integrador**:
-    *   Abra o arquivo `integrador_jules.py`.
-    *   No final do arquivo, dentro do bloco `if __name__ == '__main__':`, altere o valor da variável `novo_modulo` para o nome do arquivo que você acabou de criar.
+2.  **Ative o Guardião**:
+    *   Abra o arquivo `guardian.py`.
+    *   No final do arquivo, encontre a seção `if __name__ == '__main__':`.
+    *   Descomente a linha `guardian.check_new_module(...)` e substitua o caminho pelo nome do seu novo arquivo.
 
     ```python
-    if __name__ == '__main__':
-        logging.info("Sistema de Integração Jules - Pronto para uso.")
-
-        arquivo_principal = 'jogo_unificado_final.py'
-        # MODIFIQUE A LINHA ABAIXO
-        novo_modulo = 'meu_novo_modulo.py'
-        arquivo_final = 'jogo_unificado_final.py'
-
-        integrar_novo_modulo(arquivo_principal, novo_modulo, arquivo_final)
+    # if __name__ == '__main__':
+    #    guardian = Guardian()
+    #    if guardian.config:
+    #        # Para usar, descomente a linha abaixo e substitua pelo caminho do seu novo arquivo.
+    #        guardian.check_new_module('meu_novo_sistema.py')
     ```
 
-3.  **Execute o Integrador**:
-    *   Salve suas alterações no `integrador_jules.py`.
-    *   Execute-o a partir do terminal:
+3.  **Execute o Guardião**:
+    *   Salve o `guardian.py` e execute-o pelo terminal:
 
     ```bash
-    python integrador_jules.py
+    python guardian.py
     ```
 
-4.  **Verifique o Resultado**:
-    *   O integrador irá analisar os dois arquivos. Se não encontrar nenhuma classe ou função global com o mesmo nome, ele anexará seu novo código ao final do `jogo_unificado_final.py`.
-    *   Se um conflito for detectado, a operação será cancelada, e o integrador informará qual nome está causando o conflito. Você precisará renomear o elemento no seu novo módulo antes de tentar novamente.
-
-Este sistema garante que o jogo principal nunca seja corrompido por uma integração mal-sucedida.
+4.  **Analise o Resultado**:
+    *   O Guardião irá analisar seu novo arquivo.
+    *   **Se houver um conflito de nome de arquivo**, ele emitirá um erro.
+    *   **Se a classe principal do seu arquivo estiver mapeada no `guardian_config.json`**, ele sugerirá a pasta correta para colocar o arquivo.
+    *   **Se a classe não estiver mapeada**, ele informará que não pode dar uma sugestão automática, e você deverá decidir onde colocar o arquivo e atualizar o mapa de configuração.
