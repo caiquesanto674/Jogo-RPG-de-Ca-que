@@ -1,0 +1,424 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run Tests
+      run: |
+        python manage.py test
+# APOLO_MEGA_SYSTEM_FINAL.py
+# Versão Final Unificada: Jogo Híbrido (RPG/Tycoon) + Sistemas de Suporte Ω
+# Data: 07 Dezembro 2025
+
+import random
+import time
+import hashlib
+import re
+import math
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Tuple
+
+# ===================== CONFIGURAÇÃO GLOBAL E UTILITÁRIOS =====================
+MAPA_TAMANHO = (30, 30)
+
+def gerar_codigo_confirmacao(acao: str, cargo: str, nivel_tec: int) -> str:
+    """Frases de Comportamento: Gera um hash de confirmação para comandos críticos."""
+    raw = f"{acao}-{cargo}-{nivel_tec}:{datetime.now().microsecond}"
+    return hashlib.sha256(raw.encode()).hexdigest()[:8].upper()
+
+# ===================== MÓDULO DE SERVIÇOS (DIAGNÓSTICO/CORREÇÃO) =====================
+
+class Diagnostico:
+    """Diagnóstico Proativo: Verifica e corrige inconsistências menores antes da falha total."""
+    def __init__(self, engine):
+        self.engine = engine
+
+    def check_integridade(self):
+        """Monitora moral e recursos críticos, acionando alertas proativos."""
+        monarca = self.engine.protagonista
+        base = self.engine.base
+        
+        if monarca.moral < 45 and not monarca.ativacao_overflow:
+            print("❗ DIAGNÓSTICO PROATIVO: Moral em nível de risco. Preparar Agony Overflow.")
+        
+        if base.recursos.get("Munição", 0) < 5 and base.veiculos:
+             print("🛠️ DIAGNÓSTICO: Estoque de Munição CRÍTICO. Iniciando produção emergencial.")
+             base.recursos["Munição"] += 5
+
+class CorrecaoLog:
+    """Contabiliza e registra as ações do sistema de autocorreção."""
+    def __init__(self):
+        self.total_conflitos_detectados = 0
+        self.total_correcoes_aplicadas = 0
+        self.log_registros: List[Dict[str, Any]] = []
+
+    def registrar_conflito(self, arquivo: str):
+        self.total_conflitos_detectados += 1
+        print(f"🚨 CONFLITO DETECTADO em {arquivo}.")
+
+    def registrar_correcao(self, arquivo: str, decisao: str):
+        self.total_correcoes_aplicadas += 1
+        print(f"✅ [CORREÇÃO SUCESSO]: {arquivo} resolvido. Decisão: {decisao}")
+
+def auto_correction(engine):
+    """Rotina Reativa de Correção de Regras de Jogo."""
+    monarca = engine.protagonista
+    # Exemplo de Correção de Inconsistência de Hierarquia:
+    if monarca.cargo == 'OWNER' and monarca.hp < 9999:
+        monarca.hp = 9999
+        print("🛠️ AUTO-CORREÇÃO: HP do Monarca Absoluto restaurado para o máximo (9999).")
+
+# ===================== AI CARDINAL — CIEL ASCENDIDO (Deus Ex Machina) =====================
+class AICardinal:
+    def __init__(self):
+        self.nome = "CIEL ASCENDIDO"
+        self.correcoes = 0
+
+    def salvar_realidade(self, protagonista: 'MonarcaAbsoluto', economia: 'Economia'):
+        """Monitora e intervém para evitar o colapso de recursos e moral."""
+        if (economia.reservas.get('comida', 0) < 500 or 
+            economia.reservas.get('mana', 0) < 300 or 
+            protagonista.moral < 20):
+            
+            print(f"\nAI CARDINAL: REALIDADE EM COLAPSO. INTERVENÇÃO DIVINA EXECUTADA.")
+            economia.reservas['comida'] = max(3000, economia.reservas.get('comida', 0) + 5000)
+            protagonista.moral = 100.0
+            self.correcoes += 1
+
+# ===================== ECONOMIA & TECNOLOGIA (Tycoon + SSSS) =====================
+class Economia:
+    def __init__(self):
+        self.reservas = {
+            'ouro_conceitual': 30, 'materia_escura_ssss': 200, 'eter': 2000,
+            'mana': 2500, 'comida': 3500, 'consciencia_remanescente': 20000
+        }
+    def ciclo_ganho(self):
+        """Processa consumo e ganhos passivos."""
+        self.reservas['comida'] -= random.randint(120, 350)
+        self.reservas['mana'] -= random.randint(50, 140)
+
+class Tecnologia:
+    def __init__(self):
+        self.nivel = 1
+        self.arvore = []
+        
+    def pesquisar(self, nome: str, custo: Dict[str, int], base_militar: 'BaseMilitar'):
+        """Pesquisa tecnologia, desbloqueando upgrades bélicos/psíquicos."""
+        if all(base_militar.recursos.get(res, 0) >= qtd for res, qtd in custo.items()):
+            for res, qtd in custo.items():
+                base_militar.recursos[res] -= qtd
+            self.nivel += 1
+            self.arvore.append(nome)
+            print(f"🔬 Tec. pesquisada: {nome} | Nível {self.nivel}")
+            return True
+        return False
+
+# ===================== WORLD MAP (Construção de Mundo Tático) =====================
+class WorldMap:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        # 0=Planície(rápido), 1=Floresta(lento, cobertura), 2=Montanha(lento, alto alcance), 3=Pântano(muito lento)
+        self.grid = [[random.randint(0, 3) for _ in range(height)] for _ in range(width)]
+        
+    def get_modificador_movimento(self, pos: tuple, tipo_unidade: str) -> float:
+        """Calcula o modificador de velocidade baseado no terreno e no tipo de unidade."""
+        x, y = pos
+        if not (0 <= x < self.width and 0 <= y < self.height): return 0.0
+        
+        terreno = self.grid[x][y]
+        modificadores = {
+            'Veiculo': {0: 1.0, 1: 0.7, 2: 0.5, 3: 0.2}, 
+            'Personagem': {0: 1.0, 1: 0.8, 2: 0.6, 3: 0.4}
+        }
+        return modificadores.get(tipo_unidade, {}).get(terreno, 1.0)
+    
+    def get_terreno_nome(self, pos: tuple) -> str:
+        nomes = {0: "Planície", 1: "Floresta", 2: "Montanha", 3: "Pântano"}
+        x, y = pos
+        if 0 <= x < self.width and 0 <= y < self.height:
+            return nomes.get(self.grid[x][y], "Desconhecido")
+        return "Fora do Mapa"
+
+# ===================== ENTIDADES (RPG) =====================
+class Entidade:
+    def __init__(self, nome: str, hp: int, pos: tuple):
+        self.nome = nome
+        self.hp = hp
+        self.pos = pos
+        self.inventario = []
+
+class Personagem(Entidade):
+    def __init__(self, nome, cargo='Jogador', raca='Humano', classe='Guerreiro', base=None):
+        super().__init__(nome, hp=100, pos=(0,0))
+        self.cargo = cargo
+        self.moral = 100.0 if cargo != 'OWNER' else None
+        self.humor = "neutro"
+
+    def agir(self, acao: str, alvo: Optional[Entidade] = None):
+        """Executa ações básicas de combate ou interação."""
+        if acao == 'atacar' and alvo:
+            dano = random.randint(15, 30)
+            alvo.hp = max(0, alvo.hp - dano)
+            return f"[{self.nome}] ataca {alvo.nome} e causa {dano} de dano!"
+        return f"{self.nome} executou ação: {acao}"
+
+class MonarcaAbsoluto(Personagem):
+    """Protagonista - Monarca Caíque (OWNER), com Poder Psicológico e Hierarquia."""
+    def __init__(self, nome: str, base: 'BaseMilitar'):
+        super().__init__(nome, cargo="OWNER", base=base)
+        self.moral = 100.0
+        self.indice_dimensional = 3.0
+        self.hp = 9999
+        self.ativacao_overflow = False
+
+    def ativar_volicao(self):
+        """Mecânica Agony Overflow: Evolução Reativa por dano psicológico."""
+        if self.moral < 20 and not self.ativacao_overflow:
+            self.indice_dimensional += 0.5
+            self.moral = 70
+            self.ativacao_overflow = True
+            print(f"\n⚡ AGONY OVERFLOW ATIVADO! NOVO ÍNDICE DIMENSIONAL: {self.indice_dimensional:.2f}")
+            return True
+        return False
+
+class Inimigo(Personagem):
+    """Inimigo de alto nível com Poder Psicológico."""
+    def __init__(self, nome, nivel_ameaca=90, poder_psicologico=True, pos=(10, 10)):
+        super().__init__(nome, cargo='Geral Inimigo', raca='Demônio', classe='Mago')
+        self.hp = 150
+        self.nivel_forca = nivel_ameaca
+        self.poder_psicologico = poder_psicologico
+        self.pos = pos
+
+    def usar_poder(self, alvo: MonarcaAbsoluto):
+        """Ataca a Moral do Monarca, mitigado pela defesa SSSS da Base."""
+        if self.poder_psicologico and alvo.base:
+            dano_base = self.nivel_forca * 0.75
+            defesa_pct = alvo.base.defesa_psiquica
+            dano_final = dano_base * (1.0 - defesa_pct)
+            
+            alvo.moral = max(0, alvo.moral - dano_final)
+            alvo.humor = "dominado_psicologicamente"
+            
+            print(f"⚠️ [ATAQUE PSÍQUICO]: {self.nome} usou Manipulação Mental. Moral Monarca: {alvo.moral:.1f}")
+            return 'PSICOLOGICO'
+        return 'IDLE'
+
+# ===================== VEÍCULO DE COMBATE (Força Bélica e Mecha) =====================
+class VeiculoDeCombate(Entidade):
+    def __init__(self, nome: str, tipo_arma: str, base: 'BaseMilitar', pos: tuple, alcance_max: int = 5):
+        super().__init__(nome, hp=500, pos=pos)
+        self.tipo_arma = tipo_arma
+        self.base_logistica = base
+        self.municao = 10 
+        self.moral_tripulacao = 80
+        self.alcance_max = alcance_max
+        self.tipo_unidade = 'Veiculo'
+
+    def mover(self, dx: int, dy: int, world_map: 'WorldMap'):
+        """Movimento afetado pelo WorldMap e terreno."""
+        nx, ny = self.pos[0] + dx, self.pos[1] + dy
+        modificador = world_map.get_modificador_movimento(self.pos, self.tipo_unidade)
+        
+        if modificador >= 0.5: 
+            self.pos = (nx, ny)
+            return f"[{self.nome}]: Moveu para ({nx},{ny}) em {world_map.get_terreno_nome(self.pos)}. Mod: {modificador:.1f}x"
+        else:
+            return f"[{self.nome}]: Bloqueado! Terreno {world_map.get_terreno_nome(self.pos)} muito difícil."
+
+    def atirar(self, alvo: Entidade, world_map: 'WorldMap'):
+        """Ataque afetado por alcance e logística."""
+        distancia = math.sqrt((self.pos[0] - alvo.pos[0])**2 + (self.pos[1] - alvo.pos[1])**2)
+        
+        if self.municao > 0 and distancia <= self.alcance_max:
+            self.municao -= 1
+            self.base_logistica.recursos["Munição"] = max(0, self.base_logistica.recursos.get("Munição", 0) - 1)
+            
+            dano_arma = random.randint(50, 80)
+            alvo.hp = max(0, alvo.hp - dano_arma)
+            
+            return f"💣 [{self.nome}]: Fogo! Dano {dano_arma} em {alvo.nome} (Dist: {distancia:.1f}). HP Inimigo: {alvo.hp}"
+        
+        if distancia > self.alcance_max:
+             return f"[{self.nome}]: FALHA TÁTICA. Alvo fora do alcance ({distancia:.1f})."
+        return f"[{self.nome}]: FALHA LOGÍSTICA. Sem munição."
+
+# ===================== BASE MILITAR (HUB & ESTRUTURAS) =====================
+class ComponenteBase:
+    def __init__(self, nome: str, consumo_mana: int, producao_recurso: Optional[Dict[str, int]] = None):
+        self.nome = nome
+        self.consumo_mana = consumo_mana
+        self.producao_recurso = producao_recurso if producao_recurso is not None else {}
+        self.status = "OPERACIONAL"
+
+class BaseMilitar:
+    def __init__(self, nome, owner, economia, pos):
+        self.nome = nome
+        self.owner = owner
+        self.economia = economia
+        self.recursos = self.economia.reservas
+        self.tecnologia = Tecnologia()
+        self.defesa_psiquica = 0.0 # Mitigação SSSS (0.0 a 0.5)
+        self.componentes: List[ComponenteBase] = []
+        self._inicializar_componentes()
+
+    def _inicializar_componentes(self):
+        self.componentes.append(ComponenteBase("Reator de Éter Ω", 100, {'eter': 500, 'mana': 150}))
+        self.componentes.append(ComponenteBase("Laboratório SSSS", 200, {'materia_escura_ssss': 50}))
+        self.recursos["Munição"] = 50 # Adiciona Logística
+
+    def ciclo_base(self):
+        """Processa consumo e produção de recursos (Tycoon)."""
+        consumo_total_mana = sum(c.consumo_mana for c in self.componentes if c.status == "OPERACIONAL")
+        producao_total = {}
+
+        for comp in self.componentes:
+            if comp.status == "OPERACIONAL":
+                for recurso, quantidade in comp.producao_recurso.items():
+                    producao_total[recurso] = producao_total.get(recurso, 0) + quantidade
+        
+        self.recursos['mana'] = self.recursos.get('mana', 0) - consumo_total_mana
+        for recurso, quantidade in producao_total.items():
+            self.recursos[recurso] = self.recursos.get(recurso, 0) + quantidade
+
+    def aplicar_upgrade_psiquico(self):
+        custo_ssss = 30
+        if "Campo Psíquico SSSS" in self.tecnologia.arvore and self.recursos.get("materia_escura_ssss", 0) >= custo_ssss:
+            self.recursos["materia_escura_ssss"] -= custo_ssss
+            self.defesa_psiquica = 0.50
+            print("🛡️ [UPGRADE ATIVO]: Campo de Estabilidade Psíquica SSSS ativado! (50% de mitigação)")
+            return True
+        return False
+
+# ===================== AI NPC (INTELIGÊNCIA DE SUPORTE) =====================
+class AI_NPC_Suporte(Personagem):
+    def tomar_decisao_suporte(self, monarca: MonarcaAbsoluto, inimigo: Inimigo):
+        """Delibera ações de suporte tático (Ex: Calia Cardinal)."""
+        
+        if monarca.moral < 40 and monarca.base and monarca.base.defesa_psiquica < 0.5:
+             # Prioridade: Ativar defesa psíquica para mitigar ataque inimigo
+             monarca.base.aplicar_upgrade_psiquico()
+             return 'ATIVAR_DEFESA_PSÍQUICA'
+
+        if monarca.moral < 50:
+            # Restauração de Moral
+            monarca.moral = min(100, monarca.moral + random.randint(10, 20))
+            return 'RESTAURAR_MORAL'
+        
+        if inimigo and inimigo.hp > 0:
+            return self.agir('atacar', inimigo)
+        
+        return 'IDLE'
+
+# ===================== MOTOR FINAL — O CICLO UNIFICADO (Engine) =====================
+class Engine:
+    def __init__(self):
+        self.turno = 0
+        self.economia = Economia()
+        self.world_map = WorldMap(*MAPA_TAMANHO) 
+        self.cardinal = AICardinal()
+        self.base = BaseMilitar("CORE NEXUS AURORA", None, self.economia, (5, 5)) 
+        self.protagonista = MonarcaAbsoluto("CAÍQUE APOLO Ω", self.base)
+        self.base.owner = self.protagonista
+        self.inimigos = [Inimigo("Lord Zarkon Ω", nivel_ameaca=90, pos=(15, 15))] # Posição longe
+        self.aliados = [AI_NPC_Suporte("Calia Cardinal", base=self.base)]
+        self.veiculos = [VeiculoDeCombate("Titã Ω", "Canhão de Éter", self.base, (8, 8), alcance_max=5)] 
+        self.diagnostico = Diagnostico(self)
+        self.log_manager = CorrecaoLog()
+
+    def ciclo(self):
+        self.turno += 1
+        print(f"\n{'='*110}")
+        print(f"                  CICLO {self.turno} — DOMÍNIO ABSOLUTO DO MONARCA CAÍQUE")
+        
+        # 1. Sistemas de Suporte (Diagnóstico/Correção/Cardinal)
+        self.diagnostico.check_integridade()
+        auto_correction(self)
+        self.cardinal.salvar_realidade(self.protagonista, self.economia)
+        
+        # 2. Manutenção Econômica e Base (Tycoon)
+        self.economia.ciclo_ganho()
+        self.base.ciclo_base()
+        
+        # 3. Ações do Protagonista (Poder)
+        self.protagonista.ativar_volicao() 
+
+        # 4. Conflito Tático (Combate Psico-Bélico)
+        if self.inimigos:
+            inimigo_atual = self.inimigos[0]
+            
+            # A. Ação do Inimigo (Ataque Psicológico)
+            inimigo_atual.usar_poder(self.protagonista)
+            
+            # B. Ação Bélica (Veículo) - Movimento e Ataque
+            print("\n--- AÇÃO BÉLICA ---")
+            for veiculo in self.veiculos:
+                if self.turno == 1:
+                     print(veiculo.mover(1, 1, self.world_map)) # Tenta mover
+                print(veiculo.atirar(inimigo_atual, self.world_map))
+
+            # C. Ação do Aliado (Suporte Tático Inteligente)
+            print(f"\n--- SUPORTE TÁTICO ---")
+            for aliado in self.aliados:
+                aliado.tomar_decisao_suporte(self.protagonista, inimigo_atual)
+            
+            # D. Resposta do Protagonista
+            self.protagonista.agir('atacar', inimigo_atual)
+            
+            if inimigo_atual.hp <= 0:
+                print(f"🎉 Vitória! {inimigo_atual.nome} foi erradicado. Novo Inimigo se aproxima...")
+                self.inimigos.pop(0)
+
+        # 5. Relatório de Status
+        print(f"\n--- STATUS CRÍTICO ---")
+        print(f"  Moral: {self.protagonista.moral:.1f}/100 | Índice Dimensional: {self.protagonista.indice_dimensional:.2f}")
+        print(f"  Defesa Psíquica SSSS: {self.base.defesa_psiquica * 100:.0f}% Ativa")
+        print(f"  Recursos (M. Escura/Éter): {self.economia.reservas['materia_escura_ssss']}/{self.economia.reservas['eter']}")
+        
+        codigo = gerar_codigo_confirmacao("ASSALTO_FINAL", self.protagonista.cargo, self.base.tecnologia.nivel)
+        print(f"  [PROTOCOLO]: Código de Confirmação Final: {codigo}")
+        print(f"{'='*110}")
+
+# ============================= EXECUÇÃO FINAL & TESTE =============================
+if __name__ == "__main__":
+    print("\n" + "="*100)
+    print("             INICIANDO APOLO MEGA SYSTEM FINAL (TESTE)")
+    print("="*100)
+    
+    jogo = Engine()
+
+    # Preparação: Pesquisa do campo Psíquico SSSS antes do combate
+    custo_pesquisa = {"materia_escura_ssss": 50, "eter": 100}
+    jogo.base.tecnologia.pesquisar("Campo Psíquico SSSS", custo_pesquisa, jogo.base)
+    
+    try:
+        for _ in range(3):
+            jogo.ciclo()
+            time.sleep(1.8)
+    except KeyboardInterrupt:
+        pass
+    
+    print("\n\nSIMULAÇÃO FINALIZADA. Domínio mantido pelo Monarca Caíque.")
