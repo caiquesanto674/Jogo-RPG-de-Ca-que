@@ -101,3 +101,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Nexus Engine artifacts
+analise_report.json
+test_backups/
+test_file.py
