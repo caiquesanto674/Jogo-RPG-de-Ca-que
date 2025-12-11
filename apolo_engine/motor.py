@@ -7,7 +7,6 @@
 # 1. IMPORTAÇÕES BÁSICAS
 # ==========================
 import uuid
-import time
 import random
 from datetime import datetime
 from typing import Dict, List, Any, Optional
@@ -150,6 +149,28 @@ APOLO = ApoloEngine()
 
 # ==========================
 # 10. EXEMPLO DE EXECUÇÃO
+
+# ==========================
+# 14. SISTEMA DE DIÁLOGO
+# ==========================
+class Dialogo:
+    def __init__(self, personagem, linhas: List[str]):
+        self.personagem = personagem
+        self.linhas = linhas
+        self.indice = 0
+        LOGGER.registrar(f"Diálogo iniciado com {personagem.nome}")
+
+    def proxima_linha(self):
+        if self.indice < len(self.linhas):
+            frase = self.linhas[self.indice]
+            LOGGER.registrar(f"{self.personagem.nome}: {frase}")
+            self.indice += 1
+            return frase
+        else:
+            LOGGER.registrar("Diálogo encerrado.")
+            return None
+
+# 10. EXEMPLO DE EXECUÇÃO
 # ==========================
 if __name__ == "__main__":
     ATLAS.criar_regiao("Vale Inicial")
@@ -167,3 +188,30 @@ if __name__ == "__main__":
     m1.atualizar(20)
 
     APOLO.atualizar()
+# ==========================
+# 13. SISTEMA DE IA AVANÇADA (NOVA PARTE)
+# ==========================
+class IAAvancada:
+    def __init__(self, nivel:int = 1):
+        self.nivel = nivel
+        LOGGER.registrar(f"IA Avançada iniciada no nível {nivel}")
+
+    def decidir_acao(self, personagem: Personagem, contexto: Dict[str, Any]):
+        """
+        Sistema simples de tomada de decisão baseado em nível.
+        Nível maior = decisões mais complexas.
+        """
+        if self.nivel == 1:
+            return "observando"
+        elif self.nivel == 2:
+            return "patrulhando"
+        elif self.nivel == 3:
+            if personagem.hp < 40:
+                return "recuar"
+            else:
+                return "atacar"
+        else:
+            return "analisando"
+
+# Instância global para uso
+IA_GLOBAL = IAAvancada(3)
