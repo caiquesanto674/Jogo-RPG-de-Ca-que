@@ -1,6 +1,6 @@
 # === ARQUIVO PRINCIPAL DO NEXUS (Jogo RPG de Caíque) - UNIFICADO ===
 
-import random
+import secrets
 import uuid
 import hashlib
 import sys
@@ -63,7 +63,7 @@ class Economia:
             self.reservas[rec] += int(producao_ajustada // len(self.reservas))
 
         # Inflação dinâmica: Varia 0.99 a 1.02 por turno
-        self.inflacao *= (0.99 + random.random() * 0.03)
+        self.inflacao *= (0.99 + (secrets.randbelow(1001) / 1000.0) * 0.03)
         logging.info(f"[ECONOMIA] Reservas atualizadas. Inflação: {self.inflacao:.2f}")
 
 # --- INTEGRADO DE: Força Bélica v5 (UNIDADES E COMBATE MILITAR) ---
@@ -204,7 +204,7 @@ class Missao:
         self.status = "pendente"
 
     def executar(self, personagem: UnidadeCombate):
-        chance = personagem.level * random.uniform(0.5, 1.5)
+        chance = personagem.level * (0.5 + (secrets.randbelow(1001) / 1000.0))
         if chance >= self.dificuldade:
             personagem.ganhar_exp(self.recompensa)
             logging.info(f"[MISSÃO] {personagem.nome} completou '{self.nome}'.")
@@ -243,7 +243,7 @@ class AI_NPC:
         resp = self.supervised(contexto)
 
         # Simula o resultado da ação (reforço)
-        reward = 10 if "Ofensiva" in resp and random.random() > 0.6 else -5
+        reward = 10 if "Ofensiva" in resp and (secrets.randbelow(1001) / 1000.0) > 0.6 else -5
         self.reinforcement(reward)
 
         return f"{self.nome} age como: {resp} (Evolução AI: {self.evolucao})"
@@ -287,7 +287,7 @@ class MotorJogo:
 
         # Módulos CORE
         self.economia.operar()
-        self.tech.pesquisar(random.choice(["Criptografia Quântica", "Upgrade Cristalino"]))
+        self.tech.pesquisar(secrets.choice(["Criptografia Quântica", "Upgrade Cristalino"]))
         for amb in self.ambientacao: amb.atualizar()
 
         # Ação da IA de Suporte
@@ -296,15 +296,15 @@ class MotorJogo:
         self.ia_reparadora.reparar(self.base)
 
         # Ação Militar e Guardião
-        if random.random() > 0.7:
+        if (secrets.randbelow(1001) / 1000.0) > 0.7:
             self.guardiao.despertar()
             self.log.registrar("Guardião", f"{self.guardiao.nome} ativado.")
 
         # Eventos Aleatórios
-        if random.random() < 0.3:
+        if (secrets.randbelow(1001) / 1000.0) < 0.3:
             self.batalha()
-        if random.random() < 0.2:
-            missao = Missao("Patrulha no Setor Gamma", dificuldade=random.randint(3, 7))
+        if (secrets.randbelow(1001) / 1000.0) < 0.2:
+            missao = Missao("Patrulha no Setor Gamma", dificuldade=secrets.randbelow(5) + 3)
             missao.executar(self.base.unidades[0])
 
         # Relatório de Status
@@ -317,7 +317,7 @@ class MotorJogo:
         print("----------------------------------------------------------------")
 
     def batalha(self):
-        inimigo = Inimigo("Drone Rebelde", level=random.randint(1,5))
+        inimigo = Inimigo("Drone Rebelde", level=secrets.randbelow(5) + 1)
         self.log.registrar("BATALHA", f"Início da batalha contra {inimigo.nome}.")
 
         jogador = self.base.unidades[0]
@@ -339,7 +339,7 @@ def game_loop_principal():
     contextos = ["combate", "crise", "exploracao", "diplomacia", "manutencao"]
     for i in range(1, 6):
         print(f"\n====================== TURNO {i} ======================")
-        motor.ciclo_turno(contexto=random.choice(contextos))
+        motor.ciclo_turno(contexto=secrets.choice(contextos))
 
     print("\n================== FIM DA SIMULAÇÃO ===================")
     print("Log de Eventos Chave:")
