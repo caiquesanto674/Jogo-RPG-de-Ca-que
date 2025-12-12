@@ -18,6 +18,20 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(), logging.FileHandler(LOG_JOGO_FILE)]
 )
 
+# === CORES PARA MELHORAR A UX DO TERMINAL ===
+class Cores:
+    """Cores ANSI para o terminal."""
+    if sys.stdout.isatty():
+        VERDE = '\033[92m'
+        AMARELO = '\033[93m'
+        AZUL = '\033[94m'
+        VERMELHO = '\033[91m'
+        NEGRITO = '\033[1m'
+        FIM = '\033[0m'
+    else:
+        # Desativa as cores se não for um terminal interativo
+        VERDE = AMARELO = AZUL = VERMELHO = NEGRITO = FIM = ''
+
 # === ENUMERADORES E CÓDIGOS DE CONFIRMAÇÃO ===
 class EstadoAto(Enum):
     OFENSIVO = 'OFENSIVO'
@@ -283,7 +297,7 @@ class MotorJogo:
 
     def ciclo_turno(self, contexto: str = "combate"):
         """Executa um único turno do jogo."""
-        print(f"--- INÍCIO DO TURNO ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ---")
+        print(f"--- INÍCIO DO TURNO ({Cores.NEGRITO}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}{Cores.FIM}) ---")
 
         # Módulos CORE
         self.economia.operar()
@@ -308,12 +322,12 @@ class MotorJogo:
             missao.executar(self.base.unidades[0])
 
         # Relatório de Status
-        print(f"\n✅ Status da Volição Ativa:")
-        print(f"   Base: **{self.base.nome}** (Defesa: {self.base.defesa} / Nível Tech: {self.tech.nivel})")
-        print(f"   Protagonista ({self.base.unidades[0].nome}): Poder de Combate **{self.base.unidades[0].poder_combate()}**")
-        print(f"   Recursos (Ouro/Mana): **{self.economia.reservas['ouro']:.0f}** / **{self.economia.reservas['mana']}**")
-        print(f"   IA '{self.npc.nome}' - Evolução: **{self.npc.evolucao}** | Ação: *{acao_npc}*")
-        print(f"   Ambiente: {self.ambientacao[0].nome} (Ciclo: {self.ambientacao[0].ciclo})")
+        print(f"\n{Cores.VERDE}✅ Status da Volição Ativa:{Cores.FIM}")
+        print(f"   Base: {Cores.AZUL}{self.base.nome}{Cores.FIM} (Defesa: {Cores.NEGRITO}{self.base.defesa}{Cores.FIM} / Nível Tech: {Cores.NEGRITO}{self.tech.nivel}{Cores.FIM})")
+        print(f"   Protagonista ({self.base.unidades[0].nome}): Poder de Combate {Cores.VERMELHO}{self.base.unidades[0].poder_combate()}{Cores.FIM}")
+        print(f"   Recursos (Ouro/Mana): {Cores.AMARELO}{self.economia.reservas['ouro']:.0f}{Cores.FIM} / {Cores.AZUL}{self.economia.reservas['mana']}{Cores.FIM}")
+        print(f"   IA '{self.npc.nome}' - Evolução: {Cores.NEGRITO}{self.npc.evolucao}{Cores.FIM} | Ação: *{acao_npc}*")
+        print(f"   Ambiente: {self.ambientacao[0].nome} (Ciclo: {Cores.AMARELO}{self.ambientacao[0].ciclo}{Cores.FIM})")
         print("----------------------------------------------------------------")
 
     def batalha(self):
@@ -332,19 +346,19 @@ class MotorJogo:
 
 def game_loop_principal():
     """Função principal de execução do jogo."""
-    print(f'Iniciando Loop: {regra_base_global()}')
+    print(f"{Cores.NEGRITO}Iniciando Loop: {regra_base_global()}{Cores.FIM}")
     motor = MotorJogo()
 
     # Simula 5 turnos com contextos variados
     contextos = ["combate", "crise", "exploracao", "diplomacia", "manutencao"]
     for i in range(1, 6):
-        print(f"\n====================== TURNO {i} ======================")
+        print(f"\n{Cores.VERDE}====================== TURNO {i} ======================{Cores.FIM}")
         motor.ciclo_turno(contexto=random.choice(contextos))
 
-    print("\n================== FIM DA SIMULAÇÃO ===================")
-    print("Log de Eventos Chave:")
+    print(f"\n{Cores.VERMELHO}================== FIM DA SIMULAÇÃO ==================={Cores.FIM}")
+    print(f"{Cores.NEGRITO}Log de Eventos Chave:{Cores.FIM}")
     for data, evento, args in motor.log.registros:
-        print(f"[{data.strftime('%H:%M:%S')}] {evento}: {args}")
+        print(f"[{Cores.AMARELO}{data.strftime('%H:%M:%S')}{Cores.FIM}] {evento}: {args}")
 
 if __name__ == '__main__':
     game_loop_principal()
