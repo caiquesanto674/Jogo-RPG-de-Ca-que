@@ -1,0 +1,71 @@
+{
+    "economia": {
+        "ouro": 6152,
+        "a\u00e7o": 4052,
+        "mana": 2602,
+        "comida": 3392,
+        "energia": 2072
+    },
+    "tecnologia": [
+        "Armamento Balistico",
+        "Propulsao a Plasma",
+        "IA de Batalha"
+    ],
+    "base": {
+        "nome": "Fortaleza Alpha Prime",
+        "nivel": 3,
+        "defesa": 220,
+        "unidades": [
+            {
+                "nome": "Ca\u00edque (Protagonista)",
+                "classe": "Comandante Mecha",
+                "moral": 80,
+                "hp": 90,
+                "atk": 100,
+                "defn": 5,
+                "level": 1,
+                "exp": 0,
+                "armas": [
+                    {
+                        "nome": "Fusil Arcano",
+                        "poder": 90,
+                        "tipo": "energia"
+                    }
+                ]
+            },
+            {
+                "nome": "Soldado-9a83",
+                "classe": "Infantaria",
+                "moral": 80,
+                "hp": 100,
+                "atk": 10,
+                "defn": 5,
+                "level": 1,
+                "exp": 0,
+                "armas": []
+            },
+            {
+                "nome": "Soldado-ba67",
+                "classe": "Infantaria",
+                "moral": 80,
+                "hp": 100,
+                "atk": 10,
+                "defn": 5,
+                "level": 1,
+                "exp": 0,
+                "armas": []
+            },
+            {
+                "nome": "Soldado-db4f",
+                "classe": "Infantaria",
+                "moral": 80,
+                "hp": 100,
+                "atk": 10,
+                "defn": 5,
+                "level": 1,
+                "exp": 0,
+                "armas": []
+            }
+        ]
+    }
+}
