@@ -22,7 +22,7 @@ class UnidadeMilitar:
 
         self.nome = nome
         self.classe = classe
-        self.moral = moral
+        self.moral = moral  # Usa o setter da property
         self.tech = tech
         self.posicao = posicao
         self.poder_psicologico = poder_psicologico
@@ -38,12 +38,25 @@ class UnidadeMilitar:
         # 3. Bônus Específicos da Classe
         self.alcance_bonus = perfil.get("Bonus_Alcance", 0)
         self.bonus_comando = perfil.get("Bonus_Comando", 0)
+        # Cache para otimização de performance
+        self._forca_belica_cache: Optional[float] = None
+        self._cache_is_dirty: bool = True
 
-    def calcular_forca_belica(self, bonus_posicao: float = 0.0) -> float:
-        """
-        Calcula a Força Bélica final, integrando todos os sistemas:
-        Classe, Moral, Tecnologia, Posição Tática e Bônus Psicológicos.
-        """
+    @property
+    def moral(self) -> int:
+        return self._moral
+
+    @moral.setter
+    def moral(self, value: int):
+        self._moral = value
+        self.invalidate_cache()
+
+    def invalidate_cache(self):
+        """Marca o cache como sujo para forçar o recálculo."""
+        self._cache_is_dirty = True
+
+    def _recalculate_forca_belica(self, bonus_posicao: float) -> float:
+        """Lógica de cálculo real da Força Bélica."""
         # Bônus de Tecnologia
         bonus_tech = 1.0
         if self.tech:
@@ -62,13 +75,31 @@ class UnidadeMilitar:
         bonus_tatico = 1.0 + bonus_posicao
 
         # Fórmula final consolidada
-        forca_com_moral = self.forca_base * (self.moral / 100.0)
+        forca_com_moral = self.forca_base * (self._moral / 100.0)
         forca_final = (
             forca_com_moral * bonus_tech * bonus_tatico
             + bonus_psico
             + bonus_alianca
         )
         return forca_final
+
+    def calcular_forca_belica(self, bonus_posicao: float = 0.0) -> float:
+        """
+        Calcula a Força Bélica final. Usa um cache para o caso base (sem bônus),
+        mas recalcula se um bônus de posição for fornecido.
+        """
+        # ⚡ Bolt: Se houver bônus de posição, o cache é ignorado para garantir a precisão.
+        if bonus_posicao != 0.0:
+            return self._recalculate_forca_belica(bonus_posicao)
+
+        # ⚡ Bolt: Usa o cache apenas para o cálculo padrão (sem bônus de posição)
+        if not self._cache_is_dirty and self._forca_belica_cache is not None:
+            return self._forca_belica_cache
+
+        # Calcula, armazena em cache e retorna
+        self._forca_belica_cache = self._recalculate_forca_belica(0.0)
+        self._cache_is_dirty = False
+        return self._forca_belica_cache
 
     def exibir_poder(self):
         print(f"\n--- {self.nome} ({self.classe}) ---")
