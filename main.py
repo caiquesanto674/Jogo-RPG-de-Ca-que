@@ -1,165 +1,307 @@
+# ============================================================
+# NEXUS HYBRID ENGINE
+# Motor de Jogo 2D + 3D Unificado
+# Arquitetura inspirada em Unreal + Python nativo (Panda3D)
+# ============================================================
+# Escopo:
+# - Renderização 2D/3D
+# - Loop principal
+# - Física
+# - IA
+# - ECS (Entity Component System)
+# - Segurança
+# - Performance
+# - Testes
+# - Documentação
+# ============================================================
+
+"""
+Este arquivo representa a BASE UNIFICADA do motor.
+Ele foi projetado para crescer até dezenas de milhares de linhas
+sem quebrar arquitetura.
+
+Tecnologia alvo:
+- Panda3D (render + janela + input)
+- Bullet Physics (física)
+- Python 3.11+
+"""
+
+# ============================================================
+# Imports base
+# ============================================================
+
+from direct.showbase.ShowBase import ShowBase
+from panda3d.core import Vec3, Vec2, NodePath, ClockObject
+from panda3d.bullet import BulletWorld, BulletRigidBodyNode, BulletBoxShape
+import time
+import uuid
 import logging
-import random
-from datetime import datetime
+from typing import Dict, List, Type, Optional
 
-from nexus.componentes.base import BaseMilitar
-from nexus.componentes.entidades import Arma, Guardiao, Inimigo, UnidadeCombate
-from nexus.componentes.familia import MembroFamilia
-from nexus.sistemas.ambiente import Ambiente
-from nexus.sistemas.economia import Economia
-import sys
-
-from nexus.sistemas.ia import AI_NPC, AIReparadora
-from nexus.sistemas.missoes import Missao
-from nexus.sistemas.tecnologia import Tecnologia
-from nexus.utils.log import LogGlobal
-from nexus.utils.personalidades_ia import PersonalidadeIA
-
-LOG_JOGO_FILE = "log_nexus_unificado.log"
-
-
-class Cor:
-    """Códigos de cor ANSI para o console."""
-
-    CIANO = "\033[96m"
-    VERDE = "\033[92m"
-    AMARELO = "\033[93m"
-    VERMELHO = "\033[91m"
-    NEGRITO = "\033[1m"
-    FIM = "\033[0m"
-
-
-def ajustar_cor(texto: str, cor: str) -> str:
-    """Aplica a cor ao texto apenas se a saída for um terminal interativo."""
-    if sys.stdout.isatty():
-        return f"{cor}{texto}{Cor.FIM}"
-    return texto
-
+# ============================================================
+# LOGGING GLOBAL
+# ============================================================
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler(LOG_JOGO_FILE)],
+    format="[%(levelname)s] %(asctime)s | %(message)s"
 )
 
+logger = logging.getLogger("NEXUS")
 
-def regra_base_global():
-    """Define a regra fundamental do universo do jogo."""
-    return "Volição Ativa e Kernel 2.5"
+# ============================================================
+# CORE — ENTITY COMPONENT SYSTEM (ECS)
+# ============================================================
+
+class Component:
+    """Componente base."""
+    def __init__(self, owner: 'Entity'):
+        self.owner = owner
+
+    def update(self, dt: float):
+        pass
 
 
-class MotorJogo:
-    """Motor principal que orquestra o ciclo de jogo (Turnos)."""
+class Entity:
+    """Entidade genérica (Actor-style Unreal)."""
+    def __init__(self, name: str = "Entity"):
+        self.id = uuid.uuid4()
+        self.name = name
+        self.components: Dict[Type[Component], Component] = {}
 
+    def add_component(self, component_cls: Type[Component], *args, **kwargs):
+        component = component_cls(self, *args, **kwargs)
+        self.components[component_cls] = component
+        return component
+
+    def get(self, component_cls: Type[Component]):
+        return self.components.get(component_cls)
+
+    def update(self, dt: float):
+        for c in self.components.values():
+            c.update(dt)
+
+
+# ============================================================
+# TRANSFORM COMPONENT (2D + 3D)
+# ============================================================
+
+class Transform(Component):
+    def __init__(self, owner, position=Vec3(0,0,0)):
+        super().__init__(owner)
+        self.position = position
+        self.rotation = Vec3(0,0,0)
+        self.scale = Vec3(1,1,1)
+
+
+# ============================================================
+# RENDER COMPONENT
+# ============================================================
+
+class RenderComponent(Component):
+    """Suporta 2D (UI/sprites) e 3D (models)."""
+    def __init__(self, owner, model_path: Optional[str] = None):
+        super().__init__(owner)
+        self.node: Optional[NodePath] = None
+        self.model_path = model_path
+
+    def attach(self, parent: NodePath):
+        if self.model_path:
+            self.node = loader.loadModel(self.model_path)
+            self.node.reparentTo(parent)
+        else:
+            # Se não houver modelo, cria um nó vazio para posicionamento
+            self.node = parent.attachNewNode(self.owner.name)
+
+    def update(self, dt: float):
+        transform = self.owner.get(Transform)
+        if self.node and transform:
+            self.node.setPos(transform.position)
+            self.node.setHpr(transform.rotation)
+            self.node.setScale(transform.scale)
+
+
+# ============================================================
+# PHYSICS SYSTEM
+# ============================================================
+
+class PhysicsWorld:
     def __init__(self):
-        self.economia = Economia()
-        self.tech = Tecnologia()
-        self.log = LogGlobal()
+        self.world = BulletWorld()
+        self.world.setGravity(Vec3(0, 0, -9.81))
 
-        # Inicialização da Força e Defesa
-        self.base = BaseMilitar("Fortaleza Alpha Prime")
-        self.guardiao = Guardiao("Argus", "Temporal Vortex")
-        self.base.adicionar_guardiao(self.guardiao)
-        arma_base = Arma("Fusil Arcano", 90, "energia")
-        unidade = UnidadeCombate(
-            "Caíque (Protagonista)", "Comandante Mecha", armas=[arma_base], atk=100
-        )
-        self.base.unidades.append(unidade)
-
-        # Inicialização de NPCs, Família e Ambiente
-        self.ambientacao = [
-            Ambiente("Vale Sombrio", "floresta"),
-            Ambiente("Capital Arcanum", "cidade"),
-        ]
-        # Demonstração do novo sistema de IA com múltiplas personalidades
-        self.npcs = [
-            AI_NPC("Ciel-Nexus (Padrão)", PersonalidadeIA.PADRAO),
-            AI_NPC("Ragnar (Agressivo)", PersonalidadeIA.AGRESSIVA),
-            AI_NPC("Elara (Cautelosa)", PersonalidadeIA.CAUTELOSA),
-            AI_NPC("Jinx (Imprevisível)", PersonalidadeIA.IMPREVISIVEL),
-        ]
-        self.familia = [MembroFamilia("Kael", "Liderança"), MembroFamilia("Lyna", "Estratégia")]
-        self.ia_reparadora = AIReparadora()
-
-    def ciclo_turno(self, contexto: str = "combate"):
-        """Executa um único turno do jogo."""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(ajustar_cor(f"\n--- INÍCIO DO TURNO ({timestamp}) ---", Cor.NEGRITO))
-
-        # Módulos CORE
-        self.economia.operar()
-        self.tech.pesquisar(random.choice(["Criptografia Quântica", "Upgrade Cristalino"]))
-        for amb in self.ambientacao:
-            amb.atualizar()
-
-        # Ação da IA de Suporte (agora com seleção aleatória de personalidade)
-        npc_ativo = random.choice(self.npcs)
-        acao_npc = npc_ativo.agir(self.ambientacao[0], contexto)
-        self.log.registrar("AcaoNPC", acao_npc)
-        self.ia_reparadora.reparar(self.base)
-
-        # Ação Militar e Guardião
-        if random.random() > 0.7:
-            self.guardiao.despertar()
-            self.log.registrar("Guardião", f"{self.guardiao.nome} ativado.")
-
-        # Eventos Aleatórios
-        if random.random() < 0.3:
-            self.batalha()
-        if random.random() < 0.2:
-            missao = Missao("Patrulha no Setor Gamma", dificuldade=random.randint(3, 7))
-            missao.executar(self.base.unidades[0])
-
-        # Relatório de Status
-        print(ajustar_cor("\n✅ Status da Volição Ativa:", Cor.VERDE))
-        print(
-            f"   Base: {ajustar_cor(self.base.nome, Cor.CIANO)} (Defesa: {self.base.defesa} / Nível Tech: {self.tech.nivel})"
-        )
-        print(
-            f"   Protagonista ({self.base.unidades[0].nome}): Poder de Combate {ajustar_cor(str(self.base.unidades[0].poder_combate()), Cor.NEGRITO)}"
-        )
-        print(
-            f"   Recursos (Ouro/Mana): {ajustar_cor(f'{self.economia.reservas["ouro"]:.0f}', Cor.AMARELO)} / {self.economia.reservas['mana']}"
-        )
-
-        # Feedback detalhado da IA
-        cor_acao_ia = Cor.VERMELHO if "Falha Intencional" in acao_npc else Cor.CIANO
-        print(f"   {ajustar_cor(acao_npc, cor_acao_ia)}")
-
-        print(f"   Ambiente: {self.ambientacao[0].nome} (Ciclo: {self.ambientacao[0].ciclo})")
-        print("----------------------------------------------------------------")
-
-    def batalha(self):
-        inimigo = Inimigo("Drone Rebelde", level=random.randint(1, 5))
-        self.log.registrar("BATALHA", f"Início da batalha contra {inimigo.nome}.")
-
-        jogador = self.base.unidades[0]
-        while inimigo.hp > 0 and jogador.hp > 0:
-            jogador.atacar(inimigo)
-            if inimigo.hp > 0:
-                inimigo.atacar(jogador)
-
-        vencedor = jogador if jogador.hp > 0 else inimigo
-        self.log.registrar("BATALHA", f"Vencedor: {vencedor.nome}")
-        return vencedor
+    def step(self, dt: float):
+        self.world.doPhysics(dt)
 
 
-def game_loop_principal():
-    """Função principal de execução do jogo."""
-    print(f"Iniciando Loop: {regra_base_global()}")
-    motor = MotorJogo()
+class RigidBody(Component):
+    def __init__(self, owner, mass=1.0):
+        super().__init__(owner)
+        shape = BulletBoxShape(Vec3(0.5,0.5,0.5))
+        self.node = BulletRigidBodyNode(owner.name)
+        self.node.setMass(mass)
+        self.node.addShape(shape)
 
-    # Simula 5 turnos com contextos variados
-    contextos = ["combate", "crise", "exploracao", "diplomacia", "manutencao"]
-    for i in range(1, 6):
-        print(f"\n====================== TURNO {i} ======================")
-        motor.ciclo_turno(contexto=random.choice(contextos))
+    def update(self, dt: float):
+        transform = self.owner.get(Transform)
+        if transform:
+            transform.position = self.node.getPos()
+            transform.rotation = self.node.getHpr()
 
-    print("\n================== FIM DA SIMULAÇÃO ===================")
-    print("Log de Eventos Chave:")
-    for data, evento, args in motor.log.registros:
-        print(f"[{data.strftime('%H:%M:%S')}] {evento}: {args}")
 
+# ============================================================
+# AI SYSTEM — FSM + Utility
+# ============================================================
+
+class AIState:
+    def enter(self, entity): pass
+    def update(self, entity, dt): pass
+    def exit(self, entity): pass
+
+
+class AIComponent(Component):
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.state: Optional[AIState] = None
+
+    def set_state(self, state: AIState):
+        if self.state:
+            self.state.exit(self.owner)
+        self.state = state
+        self.state.enter(self.owner)
+
+    def update(self, dt: float):
+        if self.state:
+            self.state.update(self.owner, dt)
+
+
+class StateIdle(AIState):
+    def enter(self, entity):
+        logger.info(f"{entity.name} está ocioso.")
+        self.idle_time = time.time()
+
+    def update(self, entity, dt):
+        if time.time() - self.idle_time > 3:  # Fica ocioso por 3s
+            entity.get(AIComponent).set_state(StatePatrol())
+
+
+class StatePatrol(AIState):
+    def enter(self, entity):
+        logger.info(f"{entity.name} está patrulhando.")
+        self.patrol_time = time.time()
+        rb = entity.get(RigidBody)
+        if rb:
+            rb.node.applyCentralForce(Vec3(5, 0, 0))
+
+    def update(self, entity, dt):
+        if time.time() - self.patrol_time > 5:  # Patrulha por 5s
+            entity.get(AIComponent).set_state(StateIdle())
+
+
+# ============================================================
+# GAME LOOP
+# ============================================================
+
+class NexusGame(ShowBase):
+    """Loop principal estilo Unreal (Tick)."""
+    def __init__(self):
+        super().__init__()
+        self.disableMouse()
+        self.camera.setPos(0, -20, 20)
+        self.camera.lookAt(0, 0, 0)
+        self.entities: List[Entity] = []
+        self.physics = PhysicsWorld()
+        self.last_time = time.time()
+        self.taskMgr.add(self.game_loop, "NexusLoop")
+
+    def add_entity(self, entity: Entity):
+        self.entities.append(entity)
+
+        # Conecta a física ao mundo
+        rb = entity.get(RigidBody)
+        if rb:
+            self.physics.world.attachRigidBody(rb.node)
+
+    def game_loop(self, task):
+        now = time.time()
+        dt = now - self.last_time
+        self.last_time = now
+
+        for e in self.entities:
+            e.update(dt)
+
+        self.physics.step(dt)
+        return task.cont
+
+
+# ============================================================
+# SECURITY LAYER
+# ============================================================
+
+class Security:
+    """Validação de inputs, arquivos e scripts."""
+    @staticmethod
+    def validate_path(path: str) -> bool:
+        return ".." not in path
+
+
+# ============================================================
+# PERFORMANCE
+# ============================================================
+
+class Profiler:
+    def __init__(self):
+        self.samples = []
+
+    def record(self, dt):
+        self.samples.append(dt)
+
+    def average(self):
+        return sum(self.samples)/len(self.samples) if self.samples else 0
+
+
+# ============================================================
+# ENTRY POINT
+# ============================================================
 
 if __name__ == "__main__":
-    game_loop_principal()
+    logger.info("Inicializando NEXUS HYBRID ENGINE")
+    game = NexusGame()
+
+    # Cria o chão
+    ground = Entity("Ground")
+    ground_transform = ground.add_component(Transform, position=Vec3(0, 0, -1))
+    ground_render = ground.add_component(RenderComponent, model_path="models/box.egg")
+    ground_render.attach(game.render)
+    # A escala do chão precisa ser grande
+    ground_transform.scale = Vec3(20, 20, 1)
+
+    # Física para o chão (estático)
+    ground_shape = BulletBoxShape(Vec3(10, 10, 0.5))
+    ground_node = BulletRigidBodyNode('GroundNode')
+    ground_node.addShape(ground_shape)
+    ground_np = game.render.attachNewNode(ground_node)
+    ground_np.setPos(0, 0, -0.5)
+    game.physics.world.attachRigidBody(ground_node)
+
+
+    # Cria o jogador
+    player = Entity("Player")
+    player_transform = player.add_component(Transform, position=Vec3(0, 0, 5))
+    player_render = player.add_component(RenderComponent, model_path="models/box.egg")
+    player_render.attach(game.render)
+
+    # Conecta física e renderização para o jogador
+    player_rb = player.add_component(RigidBody, mass=1.0)
+    player_rb_np = game.render.attachNewNode(player_rb.node)
+    player_rb_np.setPos(player_transform.position)
+
+    # Link a renderização para seguir a física
+    player_render.node.reparentTo(player_rb_np)
+
+    # Adiciona IA ao jogador
+    player_ai = player.add_component(AIComponent)
+    player_ai.set_state(StateIdle())
+
+    game.add_entity(player)
+    game.run()
