@@ -2,7 +2,7 @@
 from typing import Any, Dict
 
 # Definição dos perfis de classes táticas
-CLASSES_APOLO: Dict[str, Dict[str, Any]] = {
+PERFIS_UNIDADES: Dict[str, Dict[str, Any]] = {
     "Tanque": {
         "Defesa_Base": 150,
         "Forca_Base": 20,
@@ -52,7 +52,7 @@ CLASSES_APOLO: Dict[str, Dict[str, Any]] = {
     # Adicionando a classe do protagonista para compatibilidade
     "Comandante Mecha": {
         "Defesa_Base": 120,
-        "Forca_Base": 40,
+        "Forca_Base": 85, # Balanceamento: Aumentado de 40 para 85
         "Mobilidade": 5,
         "Bonus_Comando": 0.30,
         "Habilidade_Especial": "Sincronia de Combate",

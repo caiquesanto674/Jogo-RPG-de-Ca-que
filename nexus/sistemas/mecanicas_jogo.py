@@ -63,8 +63,12 @@ class Missao:
         self.status = "pendente"
 
     def executar(self, personagem: UnidadeCombate):
-        chance = personagem.level * random.uniform(0.5, 1.5)
-        if chance >= self.dificuldade:
+        # Correção: A chance de sucesso agora é baseada na Força Bélica
+        forca_personagem = personagem.calcular_forca_belica()
+        chance = forca_personagem * random.uniform(0.8, 1.2)
+
+        # A dificuldade agora é um multiplicador da força (ex: 10 * 8 = 80 de força necessária)
+        if chance >= self.dificuldade * 8:
             personagem.ganhar_exp(self.recompensa)
             logging.info(f"[MISSÃO] {personagem.nome} completou '{self.nome}'.")
             self.status = "concluída"

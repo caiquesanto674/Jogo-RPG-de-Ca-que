@@ -9,7 +9,7 @@ from ..utils.helpers import confirmar
 from typing import Optional, Tuple
 
 from ..sistemas.tecnologia import Tecnologia
-from .classes_unidades import CLASSES_APOLO
+from .classes_unidades import PERFIS_UNIDADES
 
 
 class UnidadeCombate:
@@ -28,7 +28,7 @@ class UnidadeCombate:
         exp: int = 0,
     ):
         # 1. Carrega o perfil da classe do dicionário
-        perfil = CLASSES_APOLO.get(classe)
+        perfil = PERFIS_UNIDADES.get(classe)
         if not perfil:
             raise ValueError(f"Classe '{classe}' desconhecida.")
 
@@ -93,7 +93,7 @@ class UnidadeCombate:
         if self.exp >= 100 * self.level:
             self.level += 1
             self.exp = 0
-            self.atk += 2
+            self.forca_base += 2
             self.hp += 10
             logging.info(f"[LEVEL UP] {self.nome} subiu para o nível {self.level}!")
 
