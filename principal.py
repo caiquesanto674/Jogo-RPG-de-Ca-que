@@ -21,9 +21,10 @@ def main():
     # Inicializa o motor central com TODOS os sistemas integrados
     engine = Engine_APOLO(owner="COMMANDER")
 
-    # Preparação inicial: Evolução tecnológica base
-    engine.tech.pesquisar("Plasma")
-    engine.tech.pesquisar("IA")
+    # Preparação inicial: Evolução tecnológica base, agora paga pela base principal
+    print("\n--- FASE DE PREPARAÇÃO INICIAL ---")
+    engine.tech.pesquisar("Plasma", engine.base_principal)
+    engine.tech.pesquisar("IA", engine.base_principal)
 
     # Simulação de 5 turnos completos
     for turno in range(1, 6):
