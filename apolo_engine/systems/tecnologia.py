@@ -18,11 +18,6 @@ class Tecnologia:
         if tema in self.arvore:
             self.arvore[tema] += 1
             self.pesquisas_concluidas.append(tema)
-        else:
-            # Se a tecnologia não existe, podemos adicioná-la ou registrar um erro.
-            # Por agora, vamos apenas adicioná-la com nível 1.
-            self.arvore[tema] = 1
-            self.pesquisas_concluidas.append(tema)
 
     def __str__(self):
         return f"Tecnologia (Níveis: {self.arvore})"
