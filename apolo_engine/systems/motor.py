@@ -58,15 +58,26 @@ class Engine_APOLO:
         )
         self.log.registrar("PROTOCOLO", "SHA-256", f"Código: {codigo_sha}")
 
+    def _invalidate_unidades_cache(self):
+        """
+        ⚡ Bolt: Invalida o cache de força bélica de todas as unidades.
+        Essencial após mudanças globais como pesquisas tecnológicas.
+        """
+        for unidade in self.unidades:
+            unidade.invalidate_cache()
+
     def executar_resposta_estrategica(self, acao_npc: str):
         """Executa ações baseadas na decisão da IA adversária."""
         if acao_npc == "atacar":
             self.base_principal.expande("metal", 75, 7500)
+            # A moral de cada unidade é alterada, o que já invalida o cache individualmente
             for unidade in self.unidades:
                 unidade.moral = max(60, unidade.moral - 8)
         elif acao_npc == "explorar":
             self.tech.pesquisar("IA")
             self.economia.transferir(2500, "Pesquisa Anti-Exploração")
+            # Invalida o cache de todas as unidades, pois a tecnologia afeta a força bélica
+            self._invalidate_unidades_cache()
         elif acao_npc == "negociar":
             self.economia.reserva += 5000  # Ganho diplomático
 
