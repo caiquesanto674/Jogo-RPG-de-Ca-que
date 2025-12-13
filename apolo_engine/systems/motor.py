@@ -14,7 +14,8 @@ class Engine_APOLO:
         self.log = LogSistema()
         self.economia = Economia(reserva=100000)
         self.tech = Tecnologia()
-        self.base_principal = BaseMilitar(owner, "Alpha Nexus", self.economia)
+        self.base_principal = BaseMilitar(owner, "Alpha Nexus", self.economia, self.tech)
+        self.economia.adicionar_base(self.base_principal)  # Registra a base na economia
         self.npc_adversario = AI_NPC("LEGEON", "analítico", 3, self.tech)
 
         # Unidades com poderes psicológicos e aliados
@@ -40,6 +41,14 @@ class Engine_APOLO:
 
     def turno_completo(self):
         """Executa um turno completo com TODOS os sistemas."""
+        # --- FASE DE MANUTENÇÃO E GERENCIAMENTO ---
+        print("\n--- FASE DE MANUTENÇÃO E GERENCIAMENTO ---")
+        self.economia.gerar_renda_ciclo()
+        self.base_principal.metabolismo_ciclo()
+        self.base_principal.avaliar_cenario_e_decidir()
+
+        # --- FASE DE AÇÃO DO ADVERSÁRIO ---
+        print("\n--- FASE DE AÇÃO DO ADVERSÁRIO ---")
         # 1. CÁLCULO DE PODER HIERÁRQUICO
         forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
