@@ -1,3 +1,4 @@
+# nexus/componentes/classes_unidades.py
 from typing import Any, Dict
 
 # Definição dos perfis de classes táticas
@@ -40,5 +41,20 @@ CLASSES_APOLO: Dict[str, Dict[str, Any]] = {
         "Mobilidade": 4,
         "Bonus_Comando": 0.25,  # Buff Todas Unidades Próximas
         "Habilidade_Especial": "Chamado Estratégico",
+    },
+    # Adicionando uma classe 'default' para compatibilidade com Inimigo
+    "Inimigo": {
+        "Defesa_Base": 50,
+        "Forca_Base": 10,
+        "Mobilidade": 4,
+        "Habilidade_Especial": "N/A",
+    },
+    # Adicionando a classe do protagonista para compatibilidade
+    "Comandante Mecha": {
+        "Defesa_Base": 120,
+        "Forca_Base": 40,
+        "Mobilidade": 5,
+        "Bonus_Comando": 0.30,
+        "Habilidade_Especial": "Sincronia de Combate",
     },
 }
