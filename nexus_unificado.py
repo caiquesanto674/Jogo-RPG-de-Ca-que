@@ -59,8 +59,14 @@ class Economia:
         producao_ajustada = int(self.producao_base * (2.0 - self.inflacao)) # Penaliza com inflação alta
         if producao_ajustada < 0: producao_ajustada = 100
 
-        for rec in self.reservas:
-            self.reservas[rec] += int(producao_ajustada // len(self.reservas))
+        # BOLT: Hoist len() calculation and division out of the loop.
+        # This avoids redundant computations inside the loop, improving performance slightly.
+        # It's a small but safe optimization that adheres to good performance practices.
+        num_reservas = len(self.reservas)
+        if num_reservas > 0:
+            recursos_por_reserva = int(producao_ajustada // num_reservas)
+            for rec in self.reservas:
+                self.reservas[rec] += recursos_por_reserva
 
         # Inflação dinâmica: Varia 0.99 a 1.02 por turno
         self.inflacao *= (0.99 + random.random() * 0.03)
