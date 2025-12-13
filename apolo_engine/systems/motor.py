@@ -56,7 +56,7 @@ class Engine_APOLO:
         codigo_sha = ProtocoloConfirmacao.gerar(
             acao_npc, self.npc_adversario.nome, self.npc_adversario.nivel
         )
-        self.log.registrar("PROTOCOLO", "SHA-256", f"Código: {codigo_sha[:16]}...")
+        self.log.registrar("PROTOCOLO", "SHA-256", f"Código: {codigo_sha}")
 
     def executar_resposta_estrategica(self, acao_npc: str):
         """Executa ações baseadas na decisão da IA adversária."""
