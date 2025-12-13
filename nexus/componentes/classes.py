@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 # Definição dos perfis de classes táticas
-CLASSES_APOLO: Dict[str, Dict[str, Any]] = {
+CLASSES_NEXUS: Dict[str, Dict[str, Any]] = {
     "Tanque": {
         "Defesa_Base": 150,
         "Forca_Base": 20,

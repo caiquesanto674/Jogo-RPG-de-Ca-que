@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-APOLO ENGINE - Jogo de Estratégia/RPG Unificado Completo
+NEXUS ENGINE - Jogo de Estratégia/RPG Unificado Completo
 Consolida TODOS os sistemas: Militar, Economia, Tecnologia, IA Adaptativa
 """
 
 import logging
-from apolo_engine.systems.motor import Engine_APOLO
+from nexus.sistemas.motor import MotorNexus
 
 
 # Configuração de logging global
@@ -15,11 +15,11 @@ logging.basicConfig(
 
 
 def main():
-    """Ponto de entrada principal do APOLO ENGINE."""
-    print("🚀 === INICIANDO APOLO ENGINE - SISTEMA CARDINALIS === 🚀")
+    """Ponto de entrada principal do NEXUS ENGINE."""
+    print("🚀 === INICIANDO NEXUS ENGINE - SISTEMA CARDINALIS === 🚀")
 
     # Inicializa o motor central com TODOS os sistemas integrados
-    engine = Engine_APOLO(owner="COMMANDER")
+    engine = MotorNexus(owner="COMMANDER")
 
     # Preparação inicial: Evolução tecnológica base
     engine.tech.pesquisar("Plasma")

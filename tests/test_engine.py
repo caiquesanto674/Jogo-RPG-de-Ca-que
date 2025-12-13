@@ -1,11 +1,11 @@
 import unittest
-from apolo_engine.systems.motor import Engine_APOLO
+from nexus.sistemas.motor import MotorNexus
 
 
 class TestEngineIntegration(unittest.TestCase):
     def setUp(self):
         """Prepara uma nova instância do motor para cada teste."""
-        self.engine = Engine_APOLO(owner="TEST_COMMANDER")
+        self.engine = MotorNexus(owner="TEST_COMMANDER")
 
     def test_ciclos_completos_sem_erros(self):
         """
