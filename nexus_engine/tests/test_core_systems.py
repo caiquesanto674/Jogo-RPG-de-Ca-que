@@ -2,13 +2,8 @@
 Testes unitários para os sistemas centrais refatorados do Nexus Engine.
 """
 
-import sys
-import os
 import unittest
 from datetime import datetime
-
-# Adiciona o diretório raiz do projeto ao sys.path para garantir que os imports funcionem
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 # Importa as classes refatoradas
 from nexus_engine.core.logger import UniversalLog
