@@ -1,4 +1,4 @@
-from ..systems.tecnologia import Tecnologia
+from nexus.sistemas.tecnologia import Tecnologia
 
 
 class AI_NPC:

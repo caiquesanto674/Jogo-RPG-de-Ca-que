@@ -1,8 +1,8 @@
 import uuid
 from typing import List
 
-from ..systems.economy import Economia
-from .unidade import UnidadeMilitar
+from nexus.sistemas.economy import Economia
+from nexus.componentes.unidade import UnidadeMilitar
 
 
 class BaseMilitar:

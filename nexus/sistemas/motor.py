@@ -1,14 +1,14 @@
 from typing import List
 
-from ..entities.unidade import UnidadeMilitar
-from ..entities.base import BaseMilitar
-from ..systems.economy import Economia
-from ..systems.tecnologia import Tecnologia
-from ..ai.npc import AI_NPC
-from ..systems.log import LogSistema, ProtocoloConfirmacao
+from nexus.componentes.unidade import UnidadeMilitar
+from nexus.componentes.base import BaseMilitar
+from nexus.sistemas.economy import Economia
+from nexus.sistemas.tecnologia import Tecnologia
+from nexus.componentes.npc import AI_NPC
+from nexus.sistemas.log import LogSistema, ProtocoloConfirmacao
 
 
-class Engine_APOLO:
+class MotorNexus:
     def __init__(self, owner: str):
         self.owner = owner
         self.log = LogSistema()

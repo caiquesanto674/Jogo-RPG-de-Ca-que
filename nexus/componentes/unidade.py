@@ -1,7 +1,7 @@
 from typing import Optional, Tuple
 
-from ..systems.tecnologia import Tecnologia
-from .classes import CLASSES_APOLO
+from nexus.sistemas.tecnologia import Tecnologia
+from nexus.componentes.classes import CLASSES_NEXUS
 
 
 class UnidadeMilitar:
@@ -16,7 +16,7 @@ class UnidadeMilitar:
         aliados_proximos: int = 0,
     ):
         # 1. Carrega o perfil da classe do dicionário
-        perfil = CLASSES_APOLO.get(classe)
+        perfil = CLASSES_NEXUS.get(classe)
         if not perfil:
             raise ValueError(f"Classe '{classe}' desconhecida.")
 
