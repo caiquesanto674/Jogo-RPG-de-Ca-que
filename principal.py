@@ -38,4 +38,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logging.critical(f"🛡️  ERRO CRÍTICO INESPERADO: {e}", exc_info=True)
+        print("\n❌ Ocorreu um erro fatal. O sistema será encerrado.")
