@@ -11,6 +11,7 @@ from ..systems.log import LogSistema, ProtocoloConfirmacao
 class Engine_APOLO:
     def __init__(self, owner: str):
         self.owner = owner
+        self.forca_total_cache = 0  # ⚡ BOLT: Cache para a Força Bélica Total
         self.log = LogSistema()
         self.economia = Economia(reserva=100000)
         self.tech = Tecnologia()
@@ -42,6 +43,7 @@ class Engine_APOLO:
         """Executa um turno completo com TODOS os sistemas."""
         # 1. CÁLCULO DE PODER HIERÁRQUICO
         forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        self.forca_total_cache = forca_total  # ⚡ BOLT: Armazena o valor em cache
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
 
         # 2. DECISÃO IA ADAPTATIVA
@@ -80,8 +82,9 @@ class Engine_APOLO:
             f"⚙️  TECNOLOGIA: Plasma={self.tech.arvore['Plasma']} | IA={self.tech.arvore['IA']}"
         )
         print(f"🏰 BASE: Nível {self.base_principal.nivel}")
+        # ⚡ BOLT: Utiliza o valor cacheado para evitar recálculo.
         print(
-            f"💪 FORÇA BÉLICA TOTAL: {sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+            f"💪 FORÇA BÉLICA TOTAL: {self.forca_total_cache:.2f}"
         )
         print(
             f"🤖 NPC LEGEON: {self.npc_adversario.registro_acoes[-1] if self.npc_adversario.registro_acoes else 'Inativo'}"
