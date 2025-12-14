@@ -31,6 +31,7 @@ def main():
         print(f"🎮 TURNO {turno} - ESTADO DO IMPÉRIO")
         print(f"{'='*50}")
         engine.turno_completo()
+        engine.relatorio_de_status()  # <-- Adicionado para feedback
 
     # Diagnóstico final completo
     engine.diagnostico_completo()
