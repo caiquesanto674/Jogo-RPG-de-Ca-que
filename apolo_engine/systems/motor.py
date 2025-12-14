@@ -70,6 +70,15 @@ class Engine_APOLO:
         elif acao_npc == "negociar":
             self.economia.reserva += 5000  # Ganho diplomático
 
+    def relatorio_de_status(self):
+        """Exibe um relatório de status conciso para o jogador."""
+        forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        print("\n--- Relatório de Status ---")
+        print(f"💰 Economia: R$ {self.economia.reserva:,.0f}")
+        print(f"🏰 Base Principal: Nível {self.base_principal.nivel}")
+        print(f"💪 Força Bélica Total: {forca_total:.2f}")
+        print("---------------------------\n")
+
     def diagnostico_completo(self):
         """Relatório final detalhado de TODO o sistema."""
         print("\n" + "=" * 60)
