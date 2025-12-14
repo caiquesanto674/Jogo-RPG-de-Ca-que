@@ -6,6 +6,8 @@ Consolida TODOS os sistemas: Militar, Economia, Tecnologia, IA Adaptativa
 
 import logging
 from apolo_engine.systems.motor import Engine_APOLO
+# AGENT-DEFINED: Import BaseMilitar to add more bases to the simulation
+from apolo_engine.entities.base import BaseMilitar
 
 
 # Configuração de logging global
@@ -20,6 +22,14 @@ def main():
 
     # Inicializa o motor central com TODOS os sistemas integrados
     engine = Engine_APOLO(owner="COMMANDER")
+
+    # AGENT-DEFINED: Add more bases to the simulation to showcase the new features
+    engine.bases.append(BaseMilitar(engine.owner, "Beta Centauri", engine.economia, engine.tech, nivel=2))
+    engine.bases.append(BaseMilitar(engine.owner, "Gamma Orionis", engine.economia, engine.tech, nivel=3))
+
+    # AGENT-DEFINED: Set different initial resources for the new bases
+    engine.bases[1].recursos = {"metal": 500, "combustível": 200, "plasma": 50}
+    engine.bases[2].recursos = {"metal": 2000, "combustível": 1500, "plasma": 300}
 
     # Preparação inicial: Evolução tecnológica base
     engine.tech.pesquisar("Plasma")
