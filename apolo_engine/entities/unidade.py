@@ -4,6 +4,11 @@ from ..systems.tecnologia import Tecnologia
 from .classes import CLASSES_APOLO
 
 
+# ⚡ Bolt Optimization: Usando um set para verificação de classe O(1).
+# Evita a criação de uma nova lista em cada chamada da função crítica de performance.
+TECH_PLASMA_CLASSES = {"Tanque", "Drone"}
+
+
 class UnidadeMilitar:
     def __init__(
         self,
@@ -47,7 +52,8 @@ class UnidadeMilitar:
         # Bônus de Tecnologia
         bonus_tech = 1.0
         if self.tech:
-            if self.classe in ["Tanque", "Drone"] and self.tech.arvore.get("Plasma", 0) > 1:
+            # ⚡ Bolt Optimization: Checagem de pertinência em set é O(1) em média.
+            if self.classe in TECH_PLASMA_CLASSES and self.tech.arvore.get("Plasma", 0) > 1:
                 bonus_tech += self.tech.arvore["Plasma"] * 0.15
             elif self.tech.arvore.get("IA", 0) > 1:
                 bonus_tech += self.tech.arvore["IA"] * 0.1
