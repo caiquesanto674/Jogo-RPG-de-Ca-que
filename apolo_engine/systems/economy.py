@@ -1,4 +1,9 @@
+from __future__ import annotations
 from datetime import datetime
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..entities.base import BaseMilitar
 
 
 class Economia:
@@ -15,3 +20,18 @@ class Economia:
             )
             return True
         return False
+
+    def gerar_renda_ciclo(self, bases: List[BaseMilitar]):
+        """
+        Calcula e adiciona a renda gerada por todas as bases.
+        A renda é proporcional à eficiência operacional de cada base.
+        """
+        renda_total = 0
+        for base in bases:
+            renda_base = 2500 * base.nivel * base.eficiencia_operacional
+            renda_total += renda_base
+
+        self.reserva += renda_total
+        print(
+            f"[ECONOMIA] Renda do ciclo: R$ {renda_total:,.0f}. Reserva atual: R$ {self.reserva:,.0f}"
+        )
