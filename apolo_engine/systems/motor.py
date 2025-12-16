@@ -12,47 +12,49 @@ class Engine_APOLO:
     def __init__(self, owner: str):
         self.owner = owner
         self.log = LogSistema()
-        self.economia = Economia(reserva=100000)
+        self.economia = Economia(reserva=20000)  # Reserva inicial reduzida
         self.tech = Tecnologia()
-        self.base_principal = BaseMilitar(owner, "Alpha Nexus", self.economia)
+        self.bases = [
+            BaseMilitar(owner, "Alpha Nexus", self.economia, nivel=2),
+            BaseMilitar(owner, "Beta Centauri", self.economia, nivel=1),
+        ]
         self.npc_adversario = AI_NPC("LEGEON", "analítico", 3, self.tech)
 
         # Unidades com poderes psicológicos e aliados
-        self.unidades = [
+        unidades_alpha = [
             UnidadeMilitar(
-                "Protagonista Omega",
-                "Tanque",
-                100,
-                self.tech,
-                poder_psicologico="Comando",
-                aliados_proximos=3,
+                "Protagonista Omega", "Tanque", 100, self.tech, aliados_proximos=3
             ),
             UnidadeMilitar(
-                "Escudeiro Psi",
-                "Suporte_Psi",
-                95,
-                self.tech,
-                poder_psicologico="Aura",
-                aliados_proximos=2,
+                "Escudeiro Psi", "Suporte_Psi", 95, self.tech, aliados_proximos=2
             ),
         ]
-        self.base_principal.unidades = self.unidades
+        self.bases[0].unidades = unidades_alpha
 
     def turno_completo(self):
         """Executa um turno completo com TODOS os sistemas."""
-        # 1. CÁLCULO DE PODER HIERÁRQUICO
-        forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        # 1. FASE DE RENDA E ECONÔMIA
+        self.economia.gerar_renda_ciclo(self.bases)
+
+        # 2. FASE DE METABOLISMO E SUBSISTÊNCIA DAS BASES
+        for base in self.bases:
+            base.metabolismo_ciclo()
+
+        # 3. CÁLCULO DE PODER HIERÁRQUICO
+        forca_total = sum(
+            u.calcular_forca_belica() for base in self.bases for u in base.unidades
+        )
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
 
-        # 2. DECISÃO IA ADAPTATIVA
+        # 3. DECISÃO IA ADAPTATIVA
         acao_npc = self.npc_adversario.decisao(forca_total)
         frase_npc = self.npc_adversario.frase_comportamental(acao_npc, forca_total)
         self.log.registrar("IA", self.npc_adversario.nome, frase_npc)
 
-        # 3. RESPOSTAS ESTRATÉGICAS
+        # 4. RESPOSTAS ESTRATÉGICAS
         self.executar_resposta_estrategica(acao_npc)
 
-        # 4. PROTOCOLO DE SEGURANÇA
+        # 5. PROTOCOLO DE SEGURANÇA
         codigo_sha = ProtocoloConfirmacao.gerar(
             acao_npc, self.npc_adversario.nome, self.npc_adversario.nivel
         )
@@ -60,9 +62,12 @@ class Engine_APOLO:
 
     def executar_resposta_estrategica(self, acao_npc: str):
         """Executa ações baseadas na decisão da IA adversária."""
+        # A lógica agora pode ser mais complexa, afetando bases específicas
+        base_alvo = self.bases[0]  # Exemplo: afeta a base principal
+
         if acao_npc == "atacar":
-            self.base_principal.expande("metal", 75, 7500)
-            for unidade in self.unidades:
+            base_alvo.expande("metal", 75, 7500)
+            for unidade in base_alvo.unidades:
                 unidade.moral = max(60, unidade.moral - 8)
         elif acao_npc == "explorar":
             self.tech.pesquisar("IA")
@@ -75,14 +80,18 @@ class Engine_APOLO:
         print("\n" + "=" * 60)
         print("📊 DIAGNÓSTICO COMPLETO - SISTEMA CARDINALIS")
         print("=" * 60)
-        print(f"💰 ECONOMIA: R$ {self.economia.reserva:,.0f}")
+        print(f"💰 ECONOMIA: {self.economia.reserva:,.0f} créditos")
         print(
             f"⚙️  TECNOLOGIA: Plasma={self.tech.arvore['Plasma']} | IA={self.tech.arvore['IA']}"
         )
-        print(f"🏰 BASE: Nível {self.base_principal.nivel}")
-        print(
-            f"💪 FORÇA BÉLICA TOTAL: {sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+        for base in self.bases:
+            print(
+                f"🏰 BASE {base.local}: Nível {base.nivel} | Saúde: {base.saude_base:.1f}% | Eficiência: {base.eficiencia_operacional:.1f}%"
+            )
+        forca_total = sum(
+            u.calcular_forca_belica() for base in self.bases for u in base.unidades
         )
+        print(f"💪 FORÇA BÉLICA TOTAL: {forca_total:.2f}")
         print(
             f"🤖 NPC LEGEON: {self.npc_adversario.registro_acoes[-1] if self.npc_adversario.registro_acoes else 'Inativo'}"
         )
