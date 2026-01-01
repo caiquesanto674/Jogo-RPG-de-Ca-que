@@ -73,16 +73,16 @@ class Engine_APOLO:
     def diagnostico_completo(self):
         """Relatório final detalhado de TODO o sistema."""
         print("\n" + "=" * 60)
-        print("📊 DIAGNÓSTICO COMPLETO - SISTEMA CARDINALIS")
+        print("📈 DIAGNÓSTICO COMPLETO - SISTEMA CARDINALIS")
         print("=" * 60)
-        print(f"💰 ECONOMIA: R$ {self.economia.reserva:,.0f}")
+        print(f"🏦 ECONOMIA: R$ {self.economia.reserva:,.0f}")
         print(
-            f"⚙️  TECNOLOGIA: Plasma={self.tech.arvore['Plasma']} | IA={self.tech.arvore['IA']}"
+            f"🔬 TECNOLOGIA: Plasma={self.tech.arvore['Plasma']} | IA={self.tech.arvore['IA']}"
         )
-        print(f"🏰 BASE: Nível {self.base_principal.nivel}")
+        print(f"🛡️  BASE: Nível {self.base_principal.nivel}")
         print(
-            f"💪 FORÇA BÉLICA TOTAL: {sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+            f"⚔️  FORÇA BÉLICA TOTAL: {sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
         )
         print(
-            f"🤖 NPC LEGEON: {self.npc_adversario.registro_acoes[-1] if self.npc_adversario.registro_acoes else 'Inativo'}"
+            f"👾 NPC LEGEON: {self.npc_adversario.registro_acoes[-1] if self.npc_adversario.registro_acoes else 'Inativo'}"
         )
