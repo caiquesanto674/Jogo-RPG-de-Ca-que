@@ -38,10 +38,35 @@ class Engine_APOLO:
         ]
         self.base_principal.unidades = self.unidades
 
+        # ⚡ Bolt Optimization: Cache for total military power to avoid re-calculation.
+        self._forca_total_cache = None
+        self._cache_sujo = True  # Dirty flag
+
+    def _invalidar_cache_forca_total(self):
+        """Invalidates the total military power cache. Called when unit state changes."""
+        self._cache_sujo = True
+        self._forca_total_cache = None
+
+    def get_forca_total(self) -> float:
+        """
+        Calculates or retrieves from cache the total military power of all units.
+        This avoids recalculating the sum in the same turn if the units' state hasn't changed.
+        """
+        if not self._cache_sujo and self._forca_total_cache is not None:
+            return self._forca_total_cache
+
+        forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        self._forca_total_cache = forca_total
+        self._cache_sujo = False
+        return forca_total
+
     def turno_completo(self):
         """Executa um turno completo com TODOS os sistemas."""
+        # Invalidate cache at the start of the turn to ensure fresh data
+        self._invalidar_cache_forca_total()
+
         # 1. CÁLCULO DE PODER HIERÁRQUICO
-        forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        forca_total = self.get_forca_total()
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
 
         # 2. DECISÃO IA ADAPTATIVA
@@ -64,9 +89,11 @@ class Engine_APOLO:
             self.base_principal.expande("metal", 75, 7500)
             for unidade in self.unidades:
                 unidade.moral = max(60, unidade.moral - 8)
+            self._invalidar_cache_forca_total()  # Moral changed, invalidate cache
         elif acao_npc == "explorar":
             self.tech.pesquisar("IA")
             self.economia.transferir(2500, "Pesquisa Anti-Exploração")
+            self._invalidar_cache_forca_total()  # Tech changed, invalidate cache
         elif acao_npc == "negociar":
             self.economia.reserva += 5000  # Ganho diplomático
 
@@ -81,7 +108,7 @@ class Engine_APOLO:
         )
         print(f"🏰 BASE: Nível {self.base_principal.nivel}")
         print(
-            f"💪 FORÇA BÉLICA TOTAL: {sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+            f"💪 FORÇA BÉLICA TOTAL: {self.get_forca_total():.2f}"
         )
         print(
             f"🤖 NPC LEGEON: {self.npc_adversario.registro_acoes[-1] if self.npc_adversario.registro_acoes else 'Inativo'}"
