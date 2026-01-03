@@ -17,6 +17,10 @@ class Engine_APOLO:
         self.base_principal = BaseMilitar(owner, "Alpha Nexus", self.economia)
         self.npc_adversario = AI_NPC("LEGEON", "analítico", 3, self.tech)
 
+        # Cache a nível de engine para a força total
+        self._forca_total_cache = 0.0
+        self._cache_sujo = True  # Dirty flag
+
         # Unidades com poderes psicológicos e aliados
         self.unidades = [
             UnidadeMilitar(
@@ -38,10 +42,23 @@ class Engine_APOLO:
         ]
         self.base_principal.unidades = self.unidades
 
+    def get_forca_belica_total(self) -> float:
+        """
+        ⚡ Otimização Bolt: Retorna a força bélica total, usando cache.
+        O cálculo só é refeito se o cache for invalidado.
+        """
+        if self._cache_sujo:
+            self._forca_total_cache = sum(u.calcular_forca_belica() for u in self.unidades)
+            self._cache_sujo = False
+        return self._forca_total_cache
+
     def turno_completo(self):
         """Executa um turno completo com TODOS os sistemas."""
+        # ⚡ Otimização Bolt: Invalida o cache no início de cada turno
+        self._cache_sujo = True
+
         # 1. CÁLCULO DE PODER HIERÁRQUICO
-        forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        forca_total = self.get_forca_belica_total()
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
 
         # 2. DECISÃO IA ADAPTATIVA
@@ -81,7 +98,7 @@ class Engine_APOLO:
         )
         print(f"🏰 BASE: Nível {self.base_principal.nivel}")
         print(
-            f"💪 FORÇA BÉLICA TOTAL: {sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+            f"💪 FORÇA BÉLICA TOTAL: {self.get_forca_belica_total():.2f}"
         )
         print(
             f"🤖 NPC LEGEON: {self.npc_adversario.registro_acoes[-1] if self.npc_adversario.registro_acoes else 'Inativo'}"
