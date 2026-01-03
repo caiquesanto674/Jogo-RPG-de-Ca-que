@@ -4,8 +4,8 @@ from datetime import datetime
 
 class ProtocoloConfirmacao:
     @staticmethod
-    def gerar(acao, agente, nivel):
-        s = f"{acao}|{agente}|{nivel}|{datetime.now().isoformat()}"
+    def gerar(acao, agente, nivel, salt):
+        s = f"{acao}|{agente}|{nivel}|{datetime.now().isoformat()}|{salt}"
         return hashlib.sha256(s.encode()).hexdigest()
 
 
