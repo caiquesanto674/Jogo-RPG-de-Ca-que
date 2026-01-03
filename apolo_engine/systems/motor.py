@@ -1,3 +1,4 @@
+import secrets
 from typing import List
 
 from ..entities.unidade import UnidadeMilitar
@@ -12,6 +13,7 @@ class Engine_APOLO:
     def __init__(self, owner: str):
         self.owner = owner
         self.log = LogSistema()
+        self.protocol_salt = secrets.token_hex(16)
         self.economia = Economia(reserva=100000)
         self.tech = Tecnologia()
         self.base_principal = BaseMilitar(owner, "Alpha Nexus", self.economia)
@@ -54,7 +56,7 @@ class Engine_APOLO:
 
         # 4. PROTOCOLO DE SEGURANÇA
         codigo_sha = ProtocoloConfirmacao.gerar(
-            acao_npc, self.npc_adversario.nome, self.npc_adversario.nivel
+            acao_npc, self.npc_adversario.nome, self.npc_adversario.nivel, self.protocol_salt
         )
         self.log.registrar("PROTOCOLO", "SHA-256", f"Código: {codigo_sha}")
 
