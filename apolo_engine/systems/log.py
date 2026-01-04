@@ -1,11 +1,13 @@
 import hashlib
+import secrets
 from datetime import datetime
 
 
 class ProtocoloConfirmacao:
     @staticmethod
     def gerar(acao, agente, nivel):
-        s = f"{acao}|{agente}|{nivel}|{datetime.now().isoformat()}"
+        salt = secrets.token_hex(16)
+        s = f"{salt}|{acao}|{agente}|{nivel}|{datetime.now().isoformat()}"
         return hashlib.sha256(s.encode()).hexdigest()
 
 
