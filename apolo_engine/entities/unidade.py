@@ -4,6 +4,11 @@ from ..systems.tecnologia import Tecnologia
 from .classes import CLASSES_APOLO
 
 
+# Otimização: Usar um set para lookups O(1) em vez de uma lista O(n)
+# Esta verificação ocorre em uma função chamada com frequência.
+CLASSES_PLASMA_BONUS = {"Tanque", "Drone"}
+
+
 class UnidadeMilitar:
     def __init__(
         self,
@@ -55,7 +60,8 @@ class UnidadeMilitar:
         # Bônus de Tecnologia
         bonus_tech = 1.0
         if self.tech:
-            if self.classe in ["Tanque", "Drone"] and self.tech.arvore.get("Plasma", 0) > 1:
+            # Otimização: Verificação de pertinência em set O(1), mais rápido que lista O(n)
+            if self.classe in CLASSES_PLASMA_BONUS and self.tech.arvore.get("Plasma", 0) > 1:
                 bonus_tech += self.tech.arvore["Plasma"] * 0.15
             elif self.tech.arvore.get("IA", 0) > 1:
                 bonus_tech += self.tech.arvore["IA"] * 0.1
