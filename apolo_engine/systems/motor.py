@@ -76,21 +76,28 @@ class Engine_APOLO:
         print(" 📊 DIAGNÓSTICO COMPLETO DO IMPÉRIO CARDINALIS 📊")
         print("=" * 60)
 
-        # Dados a serem exibidos
-        economia_val = f"R$ {self.economia.reserva:,.0f}"
-        tech_val = f"Plasma Nv.{self.tech.arvore['Plasma']} | IA Nv.{self.tech.arvore['IA']}"
-        base_val = f"Nível {self.base_principal.nivel}"
-        forca_val = f"{sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
-        npc_val = (
-            self.npc_adversario.registro_acoes[-1][1].upper()
-            if self.npc_adversario.registro_acoes
-            else "INATIVO"
-        )
+        # Coleta de dados para o relatório, garantindo alinhamento perfeito
+        report_data = [
+            ("💰 Economia", f"R$ {self.economia.reserva:,.0f}"),
+            (
+                "⚙️  Tecnologia",
+                f"Plasma Nv.{self.tech.arvore['Plasma']} | IA Nv.{self.tech.arvore['IA']}",
+            ),
+            ("🏰 Base Principal", f"Nível {self.base_principal.nivel}"),
+            ("💪 Força Bélica Total", f"{sum(u.calcular_forca_belica() for u in self.unidades):.2f}"),
+            (
+                "🤖 Adversário (LEGEON)",
+                self.npc_adversario.registro_acoes[-1][1].upper()
+                if self.npc_adversario.registro_acoes
+                else "INATIVO",
+            ),
+        ]
 
-        # Impressão formatada
-        print(f" 💰 Economia...........: {economia_val}")
-        print(f" ⚙️  Tecnologia.........: {tech_val}")
-        print(f" 🏰 Base Principal.....: {base_val}")
-        print(f" 💪 Força Bélica Total.: {forca_val}")
-        print(f" 🤖 Adversário (LEGEON): {npc_val}")
+        # Calcula o comprimento máximo do rótulo para alinhamento dinâmico
+        max_label_width = max(len(label) for label, _ in report_data)
+
+        # Impressão formatada e alinhada
+        for label, value in report_data:
+            print(f" {label.ljust(max_label_width)} : {value}")
+
         print("=" * 60)
