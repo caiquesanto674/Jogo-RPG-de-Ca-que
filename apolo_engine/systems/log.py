@@ -1,6 +1,12 @@
 import hashlib
 import secrets
 from datetime import datetime
+from enum import Enum
+
+
+class LogLevel(Enum):
+    DEBUG = 1
+    INFO = 2
 
 
 class ProtocoloConfirmacao:
@@ -12,10 +18,14 @@ class ProtocoloConfirmacao:
 
 
 class LogSistema:
-    def __init__(self):
+    def __init__(self, level=LogLevel.INFO):
         self.registros = []
+        self.level = level
 
-    def registrar(self, tipo, origem, conteudo):
+    def registrar(self, level, tipo, origem, conteudo):
+        if level.value < self.level.value:
+            return
+
         entrada = {
             "momento": datetime.now().isoformat(),
             "tipo": tipo,
