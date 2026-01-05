@@ -11,6 +11,15 @@ class ProtocoloConfirmacao:
         return hashlib.sha256(s.encode()).hexdigest()
 
 
+class Cores:
+    """Códigos de cores ANSI para o terminal."""
+    VERDE = '\033[92m'
+    AMARELO = '\033[93m'
+    VERMELHO = '\033[91m'
+    AZUL = '\033[94m'
+    CIANO = '\033[96m'
+    FIM = '\033[0m'
+
 class LogSistema:
     def __init__(self):
         self.registros = []
@@ -23,4 +32,14 @@ class LogSistema:
             "conteudo": conteudo,
         }
         self.registros.append(entrada)
-        print(f"[{tipo}] {origem}: {conteudo}")
+
+        cor_map = {
+            "PODER": Cores.AMARELO,
+            "IA": Cores.VERMELHO,
+            "PROTOCOLO": Cores.AZUL,
+            "BASE": Cores.VERDE,
+            "FALHA": Cores.VERMELHO,
+        }
+        cor = cor_map.get(tipo, Cores.FIM)
+
+        print(f"{cor}[{tipo}]{Cores.FIM} {origem}: {conteudo}")

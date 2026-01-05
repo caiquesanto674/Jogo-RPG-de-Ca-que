@@ -14,7 +14,9 @@ class Engine_APOLO:
         self.log = LogSistema()
         self.economia = Economia(reserva=100000)
         self.tech = Tecnologia()
-        self.base_principal = BaseMilitar(owner, "Alpha Nexus", self.economia)
+        self.base_principal = BaseMilitar(
+            owner, "Alpha Nexus", self.economia, self.log
+        )
         self.npc_adversario = AI_NPC("LEGEON", "analítico", 3, self.tech)
 
         # Unidades com poderes psicológicos e aliados
