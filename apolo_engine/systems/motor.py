@@ -16,6 +16,7 @@ class Engine_APOLO:
         self.tech = Tecnologia()
         self.base_principal = BaseMilitar(owner, "Alpha Nexus", self.economia)
         self.npc_adversario = AI_NPC("LEGEON", "analítico", 3, self.tech)
+        self._cache_forca_belica = None  # Cache para o cálculo de força
 
         # Unidades com poderes psicológicos e aliados
         self.unidades = [
@@ -38,10 +39,24 @@ class Engine_APOLO:
         ]
         self.base_principal.unidades = self.unidades
 
+    def _invalidar_cache(self):
+        """Invalida o cache de força bélica."""
+        self._cache_forca_belica = None
+
+    def _get_forca_total(self):
+        """Calcula ou retorna a força bélica total do cache."""
+        if self._cache_forca_belica is None:
+            # ⚡ Bolt: O cálculo é feito apenas uma vez por turno (ou quando invalidado)
+            # e o resultado é armazenado em cache para evitar recálculos.
+            self._cache_forca_belica = sum(u.calcular_forca_belica() for u in self.unidades)
+        return self._cache_forca_belica
+
     def turno_completo(self):
         """Executa um turno completo com TODOS os sistemas."""
+        self._invalidar_cache()  # Garante que o cache é resetado a cada turno
+
         # 1. CÁLCULO DE PODER HIERÁRQUICO
-        forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        forca_total = self._get_forca_total()
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
 
         # 2. DECISÃO IA ADAPTATIVA
@@ -80,7 +95,7 @@ class Engine_APOLO:
         economia_val = f"R$ {self.economia.reserva:,.0f}"
         tech_val = f"Plasma Nv.{self.tech.arvore['Plasma']} | IA Nv.{self.tech.arvore['IA']}"
         base_val = f"Nível {self.base_principal.nivel}"
-        forca_val = f"{sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+        forca_val = f"{self._get_forca_total():.2f}"  # ⚡ Bolt: Utiliza o cache
         npc_val = (
             self.npc_adversario.registro_acoes[-1][1].upper()
             if self.npc_adversario.registro_acoes
