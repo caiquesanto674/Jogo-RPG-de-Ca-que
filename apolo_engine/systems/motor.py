@@ -38,10 +38,14 @@ class Engine_APOLO:
         ]
         self.base_principal.unidades = self.unidades
 
+        # Cache para a força bélica total, evitando recálculo no diagnóstico.
+        self.last_forca_total: float = 0.0
+
     def turno_completo(self):
         """Executa um turno completo com TODOS os sistemas."""
         # 1. CÁLCULO DE PODER HIERÁRQUICO
         forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        self.last_forca_total = forca_total  # Cache do valor
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
 
         # 2. DECISÃO IA ADAPTATIVA
@@ -80,7 +84,7 @@ class Engine_APOLO:
         economia_val = f"R$ {self.economia.reserva:,.0f}"
         tech_val = f"Plasma Nv.{self.tech.arvore['Plasma']} | IA Nv.{self.tech.arvore['IA']}"
         base_val = f"Nível {self.base_principal.nivel}"
-        forca_val = f"{sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+        forca_val = f"{self.last_forca_total:.2f}"  # Otimização: Usa o valor em cache
         npc_val = (
             self.npc_adversario.registro_acoes[-1][1].upper()
             if self.npc_adversario.registro_acoes
