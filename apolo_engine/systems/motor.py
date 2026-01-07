@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from ..entities.unidade import UnidadeMilitar
 from ..entities.base import BaseMilitar
@@ -37,15 +37,19 @@ class Engine_APOLO:
             ),
         ]
         self.base_principal.unidades = self.unidades
+        # Cache para o cálculo da Força Bélica total, evitando recálculos.
+        self.forca_belica_cache: Optional[float] = None
 
     def turno_completo(self):
         """Executa um turno completo com TODOS os sistemas."""
         # 1. CÁLCULO DE PODER HIERÁRQUICO
+        # ⚡ Bolt Optimization: Calculate once and cache the result.
         forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
+        self.forca_belica_cache = forca_total
         self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
 
         # 2. DECISÃO IA ADAPTATIVA
-        acao_npc = self.npc_adversario.decisao(forca_total)
+        acao_npc = self.npc_adversario.decisao(self.forca_belica_cache)
         frase_npc = self.npc_adversario.frase_comportamental(acao_npc, forca_total)
         self.log.registrar("IA", self.npc_adversario.nome, frase_npc)
 
@@ -80,7 +84,13 @@ class Engine_APOLO:
         economia_val = f"R$ {self.economia.reserva:,.0f}"
         tech_val = f"Plasma Nv.{self.tech.arvore['Plasma']} | IA Nv.{self.tech.arvore['IA']}"
         base_val = f"Nível {self.base_principal.nivel}"
-        forca_val = f"{sum(u.calcular_forca_belica() for u in self.unidades):.2f}"
+        # ⚡ Bolt Optimization: Read from cache instead of recalculating.
+        # This avoids a costly loop over all units.
+        forca_val = (
+            f"{self.forca_belica_cache:.2f}"
+            if self.forca_belica_cache is not None
+            else "N/A"
+        )
         npc_val = (
             self.npc_adversario.registro_acoes[-1][1].upper()
             if self.npc_adversario.registro_acoes
