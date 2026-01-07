@@ -87,10 +87,10 @@ class Engine_APOLO:
             else "INATIVO"
         )
 
-        # Impressão formatada
-        print(f" 💰 Economia...........: {economia_val}")
-        print(f" ⚙️  Tecnologia.........: {tech_val}")
-        print(f" 🏰 Base Principal.....: {base_val}")
-        print(f" 💪 Força Bélica Total.: {forca_val}")
-        print(f" 🤖 Adversário (LEGEON): {npc_val}")
+        # Impressão formatada com alinhamento aprimorado para legibilidade
+        print(f"{' 💰 Economia':<25}: {economia_val}")
+        print(f"{' ⚙️  Tecnologia':<25}: {tech_val}")
+        print(f"{' 🏰 Base Principal':<25}: {base_val}")
+        print(f"{' 💪 Força Bélica Total':<25}: {forca_val}")
+        print(f"{' 🤖 Adversário (LEGEON)':<25}: {npc_val}")
         print("=" * 60)
