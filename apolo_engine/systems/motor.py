@@ -5,7 +5,7 @@ from ..entities.base import BaseMilitar
 from ..systems.economy import Economia
 from ..systems.tecnologia import Tecnologia
 from ..ai.npc import AI_NPC
-from ..systems.log import LogSistema, ProtocoloConfirmacao
+from ..systems.log import LogSistema, ProtocoloConfirmacao, LogLevel
 
 
 class Engine_APOLO:
@@ -42,12 +42,16 @@ class Engine_APOLO:
         """Executa um turno completo com TODOS os sistemas."""
         # 1. CÁLCULO DE PODER HIERÁRQUICO
         forca_total = sum(u.calcular_forca_belica() for u in self.unidades)
-        self.log.registrar("PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}")
+        self.log.registrar(
+            "PODER", "HIERARQUIA", f"FB Total: {forca_total:.2f}", level=LogLevel.INFO
+        )
 
         # 2. DECISÃO IA ADAPTATIVA
         acao_npc = self.npc_adversario.decisao(forca_total)
         frase_npc = self.npc_adversario.frase_comportamental(acao_npc, forca_total)
-        self.log.registrar("IA", self.npc_adversario.nome, frase_npc)
+        self.log.registrar(
+            "IA", self.npc_adversario.nome, frase_npc, level=LogLevel.INFO
+        )
 
         # 3. RESPOSTAS ESTRATÉGICAS
         self.executar_resposta_estrategica(acao_npc)
@@ -56,7 +60,9 @@ class Engine_APOLO:
         codigo_sha = ProtocoloConfirmacao.gerar(
             acao_npc, self.npc_adversario.nome, self.npc_adversario.nivel
         )
-        self.log.registrar("PROTOCOLO", "SHA-256", f"Código: {codigo_sha}")
+        self.log.registrar(
+            "PROTOCOLO", "SHA-256", f"Código: {codigo_sha}", level=LogLevel.INFO
+        )
 
     def executar_resposta_estrategica(self, acao_npc: str):
         """Executa ações baseadas na decisão da IA adversária."""
